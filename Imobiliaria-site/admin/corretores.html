@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corretores — Admin · Première Imóveis</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon">P</div>
+                <div><strong>Première Admin</strong><span
+                        style="font-size:0.65rem;color:var(--color-gold);display:block;text-transform:uppercase;letter-spacing:0.1em;">Painel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <p class="sidebar-section-label">Principal</p>
+                <a href="dashboard.html" class="sidebar-link"><span class="icon">📊</span> Dashboard</a>
+                <p class="sidebar-section-label">Gestão</p>
+                <a href="imoveis.html" class="sidebar-link"><span class="icon">🏠</span> Imóveis</a>
+                <a href="corretores.html" class="sidebar-link active"><span class="icon">👤</span> Corretores</a>
+                <a href="leads.html" class="sidebar-link"><span class="icon">📋</span> Leads</a>
+                <p class="sidebar-section-label">Site</p>
+                <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> Ver Site</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><strong>Administrador</strong><span>admin</span></div>
+                </div>
+                <button class="sidebar-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="sidebar-toggle-btn" id="sidebarToggle">☰</button>
+                    <div>
+                        <h1 class="topbar-title">Gestão de Corretores</h1>
+                        <p class="breadcrumb"><a href="dashboard.html">Admin</a> › Corretores</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="abrirModalCorretor()">+ Novo Corretor</button>
+            </header>
+
+            <div class="admin-content">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2 id="tCount">Corretores</h2>
+                        <input type="text" class="table-search" id="searchInput" placeholder="Buscar corretor..."
+                            oninput="filtrarTabela()" />
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Nome</th>
+                                    <th>CRECI</th>
+                                    <th>Especialidade</th>
+                                    <th>Telefone</th>
+                                    <th>E-mail</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyTable" class="table-empty hidden">
+                        <div class="empty-icon">👤</div>
+                        <p>Nenhum corretor cadastrado.</p>
+                        <button class="btn btn-primary mt-md" onclick="abrirModalCorretor()">+ Cadastrar
+                            Corretor</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalCorretor">
+        <div class="modal" style="max-width:560px;">
+            <div class="modal-header">
+                <h3 id="modalTitle">Novo Corretor</h3>
+                <button class="modal-close" onclick="fecharModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="corretorId" />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nome Completo *</label>
+                        <input type="text" class="form-control" id="mNome" placeholder="Nome do corretor" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CRECI *</label>
+                        <input type="text" class="form-control" id="mCreci" placeholder="CRECI-SP 00000" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" class="form-control" id="mTelefone" placeholder="(11) 99999-9999" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" class="form-control" id="mEmail" placeholder="corretor@exemplo.com" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Especialidade</label>
+                    <select class="form-control" id="mEspecialidade">
+                        <option>Alto Padrão</option>
+                        <option>Residencial</option>
+                        <option>Comercial</option>
+                        <option>Locações</option>
+                        <option>Lançamentos</option>
+                        <option>Investimentos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL da Foto</label>
+                    <input type="url" class="form-control" id="mFoto" placeholder="https://exemplo.com/foto.jpg" />
+                    <small style="color:var(--color-gray-400);font-size:0.75rem;">Sugestão:
+                        https://randomuser.me/api/portraits/men/1.jpg</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bio / Apresentação</label>
+                    <textarea class="form-control" id="mBio" rows="3"
+                        placeholder="Breve descrição do corretor..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarCorretor()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM -->
+    <div class="modal-overlay" id="modalConfirm">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>Confirmar exclusão</h3><button class="modal-close" onclick="fecharConfirm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este corretor?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="fecharConfirm()">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmarExclusao()">🗑 Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="../js/data.js"></script>
+    <script src="../js/admin-corretores.js"></script>
+</body>
+
+</html>

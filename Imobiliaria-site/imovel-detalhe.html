@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="pageTitle">Imóvel — Première Imóveis</title>
+    <meta name="description" content="Detalhes completos do imóvel na Première Imóveis." />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/public.css" />
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar solid" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-icon">P</div>
+                <div class="nav-logo-text"><strong>Première Imóveis</strong><span>Alto Padrão</span></div>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="imoveis.html" class="active">Imóveis</a></li>
+                <li><a href="corretores.html">Corretores</a></li>
+                <li><a href="contato.html">Contato</a></li>
+                <li><a href="admin/index.html" class="nav-cta">Área Admin</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="detalhe-header" id="detalheHeader">
+        <div class="container">
+            <p style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;">
+                <a href="index.html" style="color:var(--color-gold)">Início</a> ›
+                <a href="imoveis.html" style="color:rgba(255,255,255,0.6)">Imóveis</a> ›
+                <span id="breadcrumbTitulo">Imóvel</span>
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1 id="imovelTitulo">Carregando...</h1>
+                    <p id="imovelEndereco" style="color:rgba(255,255,255,0.6);font-size:0.9rem;margin-top:0.4rem;">...
+                    </p>
+                </div>
+                <div style="text-align:right;">
+                    <div id="imovelPreco"
+                        style="font-family:var(--font-serif);font-size:1.8rem;color:var(--color-gold);font-weight:700;">
+                        ...</div>
+                    <div id="imovelFinalidade"
+                        style="font-size:0.8rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.06em;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- GALLERY -->
+    <div class="container" style="margin-top:var(--space-xl);">
+        <div class="gallery" id="gallery">
+            <div class="gallery-main" id="galleryMain">
+                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900" alt="Foto principal"
+                    class="gallery-img" id="mainPhoto" onclick="openLightbox(0)" />
+            </div>
+            <div id="galleryThumbs"></div>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
+        <button onclick="closeLightbox()"
+            style="position:absolute;top:1.5rem;right:1.5rem;background:none;border:none;color:white;font-size:2rem;cursor:pointer;">✕</button>
+        <img id="lightboxImg" src="" alt=""
+            style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:8px;" />
+        <div style="display:flex;gap:1rem;margin-top:1rem;">
+            <button onclick="lightboxPrev()"
+                style="background:rgba(255,255,255,0.1);border:none;color:white;padding:0.5rem 1.5rem;border-radius:6px;cursor:pointer;font-size:1.2rem;">‹</button>
+            <button onclick="lightboxNext()"
+                style="background:rgba(255,255,255,0.1);border:none;color:white;padding:0.5rem 1.5rem;border-radius:6px;cursor:pointer;font-size:1.2rem;">›</button>
+        </div>
+        <p id="lightboxCount" style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.75rem;"></p>
+    </div>
+
+    <!-- DETALHE LAYOUT -->
+    <div class="container">
+        <div class="detalhe-layout" id="detalheLayout">
+            <!-- Main info -->
+            <div>
+                <div id="badgesArea" style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;"></div>
+
+                <!-- Info grid -->
+                <div class="info-grid" id="infoGrid"></div>
+
+                <div style="margin:1.5rem 0;">
+                    <h2
+                        style="font-family:var(--font-serif);color:var(--color-navy);font-size:1.1rem;margin-bottom:1rem;">
+                        Descrição</h2>
+                    <p id="imovelDesc" style="color:var(--color-gray-500);line-height:1.8;"></p>
+                </div>
+
+                <div
+                    style="background:var(--color-off-white);border-radius:var(--radius-lg);padding:1.5rem;margin:1.5rem 0;">
+                    <h3
+                        style="font-family:var(--font-serif);color:var(--color-navy);font-size:1rem;margin-bottom:1rem;">
+                        📍 Localização</h3>
+                    <p id="imovelLocFull" style="color:var(--color-gray-400);font-size:0.9rem;"></p>
+                </div>
+
+                <!-- Corretor -->
+                <div id="corretorCard"
+                    style="display:none;background:var(--color-white);border:1px solid var(--color-gray-200);border-radius:var(--radius-lg);padding:1.5rem;margin:1.5rem 0;display:flex;gap:1.25rem;align-items:center;">
+                    <img id="corretorFoto" src="" alt=""
+                        style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;" />
+                    <div>
+                        <p
+                            style="font-size:0.72rem;color:var(--color-gold);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">
+                            Corretor Responsável</p>
+                        <h3 id="corretorNome"
+                            style="font-family:var(--font-serif);color:var(--color-navy);font-size:1rem;"></h3>
+                        <p id="corretorCreci"
+                            style="font-size:0.78rem;color:var(--color-gray-400);margin-bottom:0.5rem;"></p>
+                        <div style="display:flex;gap:0.5rem;">
+                            <a id="corretorTel" href="#" class="btn btn-outline btn-sm">📞 Ligar</a>
+                            <a id="corretorWp" href="#" class="btn btn-primary btn-sm" target="_blank">💬 WhatsApp</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar contact form -->
+            <div>
+                <div class="contact-sidebar-card">
+                    <h3
+                        style="font-family:var(--font-serif);color:var(--color-navy);font-size:1rem;margin-bottom:0.25rem;">
+                        Tenho interesse</h3>
+                    <p style="font-size:0.82rem;color:var(--color-gray-400);margin-bottom:1.25rem;">Deixe seu contato e
+                        retornaremos em até 24h</p>
+                    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="sNome" placeholder="Seu nome completo" />
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" id="sEmail" placeholder="Seu e-mail" />
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" class="form-control" id="sTelefone" placeholder="(11) 99999-9999" />
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" id="sMensagem" rows="3"
+                                placeholder="Mensagem opcional..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;justify-content:center;"
+                            onclick="enviarInteresse()">
+                            📨 Solicitar Visita
+                        </button>
+                        <p style="font-size:0.75rem;color:var(--color-gray-300);text-align:center;">Sem compromisso.
+                            Retornaremos em breve.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIMILARES -->
+    <section class="section" style="background:var(--color-off-white);margin-top:0;">
+        <div class="container">
+            <div class="section-header">
+                <h2>Imóveis Similares</h2>
+                <div class="divider"></div>
+            </div>
+            <div class="imoveis-grid" id="similares"></div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand"><a href="index.html" class="nav-logo">
+                        <div class="nav-logo-icon">P</div>
+                        <div class="nav-logo-text"><strong>Première Imóveis</strong><span>Alto Padrão</span></div>
+                    </a>
+                    <p>Imóveis de alto padrão em São Paulo.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Imóveis</h4>
+                    <ul>
+                        <li><a href="imoveis.html?finalidade=venda">À Venda</a></li>
+                        <li><a href="imoveis.html?finalidade=aluguel">Para Alugar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="corretores.html">Corretores</a></li>
+                        <li><a href="contato.html">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li><a href="tel:+551132001234">📞 (11) 3200-1234</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Première Imóveis. CRECI-SP 000123-J</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/detalhe.js"></script>
+</body>
+
+</html>

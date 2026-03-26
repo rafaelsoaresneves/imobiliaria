@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imóveis — Admin · Première Imóveis</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body class="admin-body">
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon">P</div>
+                <div><strong>Première Admin</strong><span
+                        style="font-size:0.65rem;color:var(--color-gold);display:block;text-transform:uppercase;letter-spacing:0.1em;">Painel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <p class="sidebar-section-label">Principal</p>
+                <a href="dashboard.html" class="sidebar-link"><span class="icon">📊</span> Dashboard</a>
+                <p class="sidebar-section-label">Gestão</p>
+                <a href="imoveis.html" class="sidebar-link active"><span class="icon">🏠</span> Imóveis</a>
+                <a href="corretores.html" class="sidebar-link"><span class="icon">👤</span> Corretores</a>
+                <a href="leads.html" class="sidebar-link"><span class="icon">📋</span> Leads</a>
+                <p class="sidebar-section-label">Site</p>
+                <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> Ver Site</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><strong>Administrador</strong><span>admin</span></div>
+                </div>
+                <button class="sidebar-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="sidebar-toggle-btn" id="sidebarToggle">☰</button>
+                    <div>
+                        <h1 class="topbar-title">Gestão de Imóveis</h1>
+                        <p class="breadcrumb"><a href="dashboard.html">Admin</a> › Imóveis</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="abrirModalImovel()">+ Novo Imóvel</button>
+            </header>
+
+            <div class="admin-content">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2 id="tCount">Imóveis</h2>
+                        <div class="table-actions">
+                            <input type="text" class="table-search" id="searchInput" placeholder="Buscar imóvel..."
+                                oninput="filtrarTabela()" />
+                            <select class="form-control" id="filtFinalidade" onchange="filtrarTabela()"
+                                style="padding:0.5rem;font-size:0.85rem;width:auto;">
+                                <option value="">Todos</option>
+                                <option value="venda">Venda</option>
+                                <option value="aluguel">Aluguel</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Título / Localização</th>
+                                    <th>Tipo</th>
+                                    <th>Finalidade</th>
+                                    <th>Preço</th>
+                                    <th>Destaque</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyTable" class="table-empty hidden">
+                        <div class="empty-icon">🏡</div>
+                        <p>Nenhum imóvel encontrado.</p>
+                        <button class="btn btn-primary mt-md" onclick="abrirModalImovel()">+ Cadastrar Primeiro
+                            Imóvel</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL IMOVEL -->
+    <div class="modal-overlay" id="modalImovel">
+        <div class="modal" style="max-width:780px;">
+            <div class="modal-header">
+                <h3 id="modalTitle">Novo Imóvel</h3>
+                <button class="modal-close" onclick="fecharModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="imovelId" />
+                <h4 class="form-section-title">Informações Básicas</h4>
+                <div class="form-group">
+                    <label class="form-label">Título *</label>
+                    <input type="text" class="form-control" id="mTitulo"
+                        placeholder="Ex: Apartamento Garden Higienópolis" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Tipo *</label>
+                        <select class="form-control" id="mTipo">
+                            <option value="apartamento">Apartamento</option>
+                            <option value="casa">Casa</option>
+                            <option value="cobertura">Cobertura</option>
+                            <option value="studio">Studio</option>
+                            <option value="sala-comercial">Sala Comercial</option>
+                            <option value="terreno">Terreno</option>
+                            <option value="galpao">Galpão</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Finalidade *</label>
+                        <select class="form-control" id="mFinalidade">
+                            <option value="venda">Venda</option>
+                            <option value="aluguel">Aluguel</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preço (R$) *</label>
+                        <input type="number" class="form-control" id="mPreco" placeholder="Ex: 850000" />
+                    </div>
+                </div>
+
+                <h4 class="form-section-title">Características</h4>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Área (m²)</label><input type="number"
+                            class="form-control" id="mArea" /></div>
+                    <div class="form-group"><label class="form-label">Quartos</label><input type="number"
+                            class="form-control" id="mQuartos" min="0" /></div>
+                    <div class="form-group"><label class="form-label">Banheiros</label><input type="number"
+                            class="form-control" id="mBanheiros" min="0" /></div>
+                    <div class="form-group"><label class="form-label">Vagas</label><input type="number"
+                            class="form-control" id="mVagas" min="0" /></div>
+                </div>
+
+                <h4 class="form-section-title">Localização</h4>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Endereço</label><input type="text"
+                            class="form-control" id="mEndereco" placeholder="Rua, número" /></div>
+                    <div class="form-group"><label class="form-label">Bairro</label><input type="text"
+                            class="form-control" id="mBairro" /></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label class="form-label">Cidade</label><input type="text"
+                            class="form-control" id="mCidade" value="São Paulo" /></div>
+                    <div class="form-group"><label class="form-label">Estado</label><input type="text"
+                            class="form-control" id="mEstado" value="SP" maxlength="2" /></div>
+                    <div class="form-group"><label class="form-label">CEP</label><input type="text" class="form-control"
+                            id="mCep" placeholder="00000-000" /></div>
+                </div>
+
+                <h4 class="form-section-title">Descrição & Fotos</h4>
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-control" id="mDescricao" rows="4"
+                        placeholder="Descreva o imóvel detalhadamente..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URLs das fotos (uma por linha)</label>
+                    <textarea class="form-control" id="mFotos" rows="4"
+                        placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"></textarea>
+                    <small style="color:var(--color-gray-400);font-size:0.75rem;">Cole URLs de imagens separadas por
+                        linha. Use links do Unsplash para demonstração.</small>
+                </div>
+
+                <h4 class="form-section-title">Outras Configurações</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Corretor Responsável</label>
+                        <select class="form-control" id="mCorretor">
+                            <option value="">Nenhum</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="justify-content:flex-end;">
+                        <label class="form-label">Destaque</label>
+                        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;padding-top:0.5rem;">
+                            <input type="checkbox" id="mDestaque"
+                                style="width:18px;height:18px;accent-color:var(--color-gold);" />
+                            <span style="font-size:0.9rem;">Marcar como destaque</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarImovel()">💾 Salvar Imóvel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="modalConfirm">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>Confirmar exclusão</h3><button class="modal-close" onclick="fecharConfirm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este imóvel? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="fecharConfirm()">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmarExclusao()">🗑 Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="../js/data.js"></script>
+    <script src="../js/admin-imoveis.js"></script>
+</body>
+
+</html>

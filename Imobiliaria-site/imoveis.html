@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imóveis — Première Imóveis</title>
+    <meta name="description"
+        content="Encontre apartamentos, casas, coberturas e salas comerciais de alto padrão em São Paulo. Filtros avançados para sua busca." />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/public.css" />
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar solid" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-icon">P</div>
+                <div class="nav-logo-text">
+                    <strong>Première Imóveis</strong>
+                    <span>Alto Padrão</span>
+                </div>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="imoveis.html" class="active">Imóveis</a></li>
+                <li><a href="corretores.html">Corretores</a></li>
+                <li><a href="contato.html">Contato</a></li>
+                <li><a href="admin/index.html" class="nav-cta">Área Admin</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <header class="listing-header">
+        <div class="container">
+            <h1 id="pageTitle">Todos os Imóveis</h1>
+            <p id="pageSubtitle">Encontre o imóvel ideal com nossos filtros avançados</p>
+        </div>
+    </header>
+
+    <!-- LISTING -->
+    <div class="container">
+        <div class="listing-layout">
+            <!-- Sidebar filters -->
+            <aside class="filters-sidebar">
+                <div class="filter-panel">
+                    <h3>🔍 Filtros</h3>
+                    <div class="filter-group">
+                        <label>Finalidade</label>
+                        <select class="form-control" id="filtFinalidade">
+                            <option value="">Compra e Aluguel</option>
+                            <option value="venda">Comprar</option>
+                            <option value="aluguel">Alugar</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tipo</label>
+                        <select class="form-control" id="filtTipo">
+                            <option value="">Todos os tipos</option>
+                            <option value="apartamento">Apartamento</option>
+                            <option value="casa">Casa</option>
+                            <option value="cobertura">Cobertura</option>
+                            <option value="studio">Studio</option>
+                            <option value="sala-comercial">Sala Comercial</option>
+                            <option value="terreno">Terreno</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Quartos mínimos</label>
+                        <select class="form-control" id="filtQuartos">
+                            <option value="">Qualquer</option>
+                            <option value="1">1+</option>
+                            <option value="2">2+</option>
+                            <option value="3">3+</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Preço mínimo (R$)</label>
+                        <input type="number" class="form-control" id="filtPrecoMin" placeholder="Ex: 500000" />
+                    </div>
+                    <div class="filter-group">
+                        <label>Preço máximo (R$)</label>
+                        <input type="number" class="form-control" id="filtPrecoMax" placeholder="Ex: 2000000" />
+                    </div>
+                    <div class="filter-group">
+                        <label>Bairro / Cidade</label>
+                        <input type="text" class="form-control" id="filtBusca" placeholder="Ex: Jardins, Moema..." />
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:1rem;">
+                        <button class="btn btn-primary" onclick="aplicarFiltros()"
+                            style="width:100%;justify-content:center;">
+                            Aplicar Filtros
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="limparFiltros()"
+                            style="width:100%;justify-content:center;">
+                            Limpar Filtros
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Results -->
+            <div>
+                <div class="listing-controls">
+                    <p id="resultCount">Carregando...</p>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <label style="font-size:0.82rem;color:var(--color-gray-400)">Ordenar:</label>
+                        <select class="form-control" id="ordenar" style="padding:0.5rem;font-size:0.85rem;"
+                            onchange="aplicarFiltros()">
+                            <option value="recente">Mais Recentes</option>
+                            <option value="preco-asc">Menor Preço</option>
+                            <option value="preco-desc">Maior Preço</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="imoveis-grid" id="imoveisGrid">
+                    <div style="grid-column:1/-1;text-align:center;padding:3rem;">
+                        <div class="spinner" style="margin:auto"></div>
+                    </div>
+                </div>
+                <div id="emptyState" class="hidden" style="text-align:center;padding:4rem 1rem;grid-column:1/-1;">
+                    <p style="font-size:3rem;margin-bottom:1rem;">🏡</p>
+                    <h3 style="font-family:var(--font-serif);color:var(--color-navy);margin-bottom:0.5rem;">Nenhum
+                        imóvel encontrado</h3>
+                    <p style="color:var(--color-gray-400)">Tente ajustar os filtros para encontrar mais resultados.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="nav-logo">
+                        <div class="nav-logo-icon">P</div>
+                        <div class="nav-logo-text"><strong>Première Imóveis</strong><span>Alto Padrão</span></div>
+                    </a>
+                    <p>Imóveis de alto padrão em São Paulo há mais de 15 anos.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Imóveis</h4>
+                    <ul>
+                        <li><a href="imoveis.html?finalidade=venda">À Venda</a></li>
+                        <li><a href="imoveis.html?finalidade=aluguel">Para Alugar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="corretores.html">Nossa Equipe</a></li>
+                        <li><a href="contato.html">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li><a href="tel:+551132001234">📞 (11) 3200-1234</a></li>
+                        <li><a href="mailto:contato@premiereimob.com.br">✉️ contato@premiereimob.com.br</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Première Imóveis. CRECI-SP 000123-J</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/imoveis.js"></script>
+</body>
+
+</html>

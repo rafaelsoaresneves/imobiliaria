@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nossa Equipe — Première Imóveis</title>
+    <meta name="description"
+        content="Conheça os corretores especializados da Première Imóveis. Profissionais com CRECI e expertise no mercado imobiliário de São Paulo." />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/public.css" />
+</head>
+
+<body>
+    <nav class="navbar solid" id="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <div class="nav-logo-icon">P</div>
+                <div class="nav-logo-text"><strong>Première Imóveis</strong><span>Alto Padrão</span></div>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="imoveis.html">Imóveis</a></li>
+                <li><a href="corretores.html" class="active">Corretores</a></li>
+                <li><a href="contato.html">Contato</a></li>
+                <li><a href="admin/index.html" class="nav-cta">Área Admin</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <header class="listing-header">
+        <div class="container">
+            <h1>Nossa Equipe</h1>
+            <p>Corretores especializados e certificados para atender você com excelência</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Conheça nossos Especialistas</h2>
+                <p>Cada corretor é um especialista dedicado ao seu segmento de mercado</p>
+                <div class="divider"></div>
+            </div>
+            <div class="imoveis-grid" id="corretoresGrid"
+                style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+                <div style="grid-column:1/-1;text-align:center;padding:3rem;">
+                    <div class="spinner" style="margin:auto"></div>
+                </div>
+            </div>
+            <div id="emptyState" class="hidden" style="text-align:center;padding:4rem 1rem;">
+                <p style="font-size:3rem;margin-bottom:1rem;">👥</p>
+                <h3 style="font-family:var(--font-serif);color:var(--color-navy);">Nenhum corretor cadastrado</h3>
+                <p style="color:var(--color-gray-400)">Entre em contato conosco para mais informações.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section" style="background:var(--color-navy);padding:4rem 0;">
+        <div class="container" style="text-align:center;">
+            <h2
+                style="font-family:var(--font-serif);color:var(--color-white);font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:1rem;">
+                Pronto para encontrar seu <span style="color:var(--color-gold)">imóvel ideal?</span>
+            </h2>
+            <p style="color:rgba(255,255,255,0.7);margin-bottom:2rem;font-size:1rem;">Entre em contato com nossa equipe
+                e inicie sua jornada imobiliária hoje.</p>
+            <a href="contato.html" class="btn btn-primary btn-lg">Falar com um Corretor →</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand"><a href="index.html" class="nav-logo">
+                        <div class="nav-logo-icon">P</div>
+                        <div class="nav-logo-text"><strong>Première Imóveis</strong><span>Alto Padrão</span></div>
+                    </a>
+                    <p>Imóveis de alto padrão em São Paulo.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Imóveis</h4>
+                    <ul>
+                        <li><a href="imoveis.html?finalidade=venda">À Venda</a></li>
+                        <li><a href="imoveis.html?finalidade=aluguel">Para Alugar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="corretores.html">Corretores</a></li>
+                        <li><a href="contato.html">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li><a href="tel:+551132001234">📞 (11) 3200-1234</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Première Imóveis. CRECI-SP 000123-J</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/corretores.js"></script>
+</body>
+
+</html>

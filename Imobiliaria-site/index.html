@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WM Imóveis — Imóveis de Alto Padrão em São Paulo</title>
+  <meta name="description"
+    content="Encontre o imóvel dos seus sonhos com a WM Imóveis. Apartamentos, casas, coberturas e salas comerciais de alto padrão em São Paulo." />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/public.css" />
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar transparent" id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">P</div>
+        <div class="nav-logo-text">
+          <strong>WM Imóveis</strong>
+          <span>Alto Padrão</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">Início</a></li>
+        <li><a href="imoveis.html">Imóveis</a></li>
+        <li><a href="corretores.html">Corretores</a></li>
+        <li><a href="contato.html">Contato</a></li>
+        <li><a href="admin/index.html" class="nav-cta">Área Admin</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80" alt="Imóvel de luxo"
+      class="hero-bg" />
+    <div class="hero-overlay"></div>
+    <div class="container">
+      <div class="hero-content">
+        <p class="hero-eyebrow">Imobiliária Premium em São Paulo</p>
+        <h1>Encontre o <em>imóvel perfeito</em> para você</h1>
+        <p>Curadoria exclusiva de imóveis de alto padrão. Atendimento personalizado com os melhores corretores do
+          mercado.</p>
+
+        <div class="search-box" id="searchBox">
+          <div class="search-tabs">
+            <button class="search-tab active" data-tab="comprar">Comprar</button>
+            <button class="search-tab" data-tab="alugar">Alugar</button>
+          </div>
+          <div class="search-fields">
+            <div class="search-field">
+              <input type="text" id="searchBusca" placeholder="🔍  Buscar por bairro, cidade ou título..." />
+            </div>
+            <div class="search-field">
+              <select id="searchTipo">
+                <option value="">Tipo de imóvel</option>
+                <option value="apartamento">Apartamento</option>
+                <option value="casa">Casa</option>
+                <option value="cobertura">Cobertura</option>
+                <option value="studio">Studio</option>
+                <option value="sala-comercial">Sala Comercial</option>
+                <option value="terreno">Terreno</option>
+              </select>
+            </div>
+            <div class="search-field">
+              <select id="searchQuartos">
+                <option value="">Quartos</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+              </select>
+            </div>
+            <button class="search-btn" id="searchBtn">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              Buscar
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong id="statImoveis">500+</strong>
+            <span>Imóveis Cadastrados</span>
+          </div>
+          <div class="hero-stat">
+            <strong>98%</strong>
+            <span>Clientes Satisfeitos</span>
+          </div>
+          <div class="hero-stat">
+            <strong>15+</strong>
+            <span>Anos de Mercado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMÓVEIS EM DESTAQUE -->
+  <section class="section" style="background: var(--color-off-white);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Imóveis em Destaque</h2>
+        <p>Seleção exclusiva dos melhores imóveis disponíveis no mercado</p>
+        <div class="divider"></div>
+      </div>
+      <div class="imoveis-grid" id="imoveisDestaque">
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;">
+          <div class="spinner" style="margin:auto"></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:2.5rem;">
+        <a href="imoveis.html" class="btn btn-outline btn-lg">Ver Todos os Imóveis →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFERENCIAIS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Por que escolher a Première?</h2>
+        <p>Referência em imóveis de alto padrão há mais de 15 anos</p>
+        <div class="divider"></div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>Atendimento Premium</h3>
+          <p>Consultores especializados dedicados exclusivamente ao seu perfil de busca e necessidades.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>Curadoria Exclusiva</h3>
+          <p>Cada imóvel é avaliado e selecionado por nossa equipe para garantir máxima qualidade.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Assessoria Jurídica</h3>
+          <p>Acompanhamento completo da documentação e processos legais da sua transação imobiliária.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>Melhores Condições</h3>
+          <p>Parcerias com os principais bancos para oferecer as melhores taxas de financiamento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CORRETORES -->
+  <section class="section" style="background: var(--color-off-white);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Nossa Equipe</h2>
+        <p>Corretores especializados prontos para encontrar o imóvel ideal para você</p>
+        <div class="divider"></div>
+      </div>
+      <div class="imoveis-grid" id="corretoresHome" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">
+      </div>
+      <div style="text-align:center;margin-top:2.5rem;">
+        <a href="corretores.html" class="btn btn-outline btn-lg">Conhecer Toda a Equipe →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEAD BANNER -->
+  <section class="lead-banner">
+    <div class="container">
+      <div class="lead-banner-content">
+        <div>
+          <h2>Não encontrou o <em>imóvel ideal?</em></h2>
+          <p style="margin-top:1rem;font-size:1rem;">Deixe seus dados e nossa equipe entrará em contato com as melhores
+            opções personalizadas para você.</p>
+          <ul style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.75rem;">
+            <li style="display:flex;align-items:center;gap:0.75rem;color:rgba(255,255,255,0.75);font-size:0.9rem;">
+              <span style="color:var(--color-gold)">✓</span> Atendimento personalizado em até 24h
+            </li>
+            <li style="display:flex;align-items:center;gap:0.75rem;color:rgba(255,255,255,0.75);font-size:0.9rem;">
+              <span style="color:var(--color-gold)">✓</span> Sem compromisso ou obrigações
+            </li>
+            <li style="display:flex;align-items:center;gap:0.75rem;color:rgba(255,255,255,0.75);font-size:0.9rem;">
+              <span style="color:var(--color-gold)">✓</span> Curadoria exclusiva de imóveis
+            </li>
+          </ul>
+        </div>
+        <div class="lead-form" id="leadFormHome">
+          <h3 style="font-family:var(--font-serif);color:var(--color-white);font-size:1.1rem;">Quero ser atendido</h3>
+          <div class="form-group">
+            <label class="form-label">Nome completo</label>
+            <input type="text" class="form-control" id="leadNome" placeholder="Seu nome" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="leadEmail" placeholder="seu@email.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefone / WhatsApp</label>
+            <input type="tel" class="form-control" id="leadTelefone" placeholder="(11) 99999-9999" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Interesse</label>
+            <select class="form-control" id="leadInteresse">
+              <option>Comprar imóvel</option>
+              <option>Alugar imóvel</option>
+              <option>Vender imóvel</option>
+              <option>Investimento</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" id="leadEnviar"
+            onclick="enviarLead()">
+            Quero ser contactado →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">P</div>
+            <div class="nav-logo-text">
+              <strong>WM Imóveis</strong>
+              <span>Alto Padrão</span>
+            </div>
+          </a>
+          <p>Há mais de 15 anos conectando pessoas aos melhores imóveis de São Paulo. Excelência, confiança e
+            resultados.</p>
+          <div class="footer-social">
+            <a href="#" class="social-link" title="Instagram">📷</a>
+            <a href="#" class="social-link" title="Facebook">📘</a>
+            <a href="#" class="social-link" title="WhatsApp">💬</a>
+            <a href="#" class="social-link" title="LinkedIn">💼</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Imóveis</h4>
+          <ul>
+            <li><a href="imoveis.html?finalidade=venda">À Venda</a></li>
+            <li><a href="imoveis.html?finalidade=aluguel">Para Alugar</a></li>
+            <li><a href="imoveis.html?tipo=apartamento">Apartamentos</a></li>
+            <li><a href="imoveis.html?tipo=casa">Casas</a></li>
+            <li><a href="imoveis.html?tipo=cobertura">Coberturas</a></li>
+            <li><a href="imoveis.html?tipo=sala-comercial">Comercial</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <ul>
+            <li><a href="corretores.html">Nossa Equipe</a></li>
+            <li><a href="contato.html">Contato</a></li>
+            <li><a href="#">Política de Privacidade</a></li>
+            <li><a href="#">Termos de Uso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contato</h4>
+          <ul>
+            <li><a href="tel:+551132001234">📞 (11) 3200-1234</a></li>
+            <li><a href="https://wa.me/5511999991234">💬 (11) 99999-1234</a></li>
+            <li><a href="mailto:contato@premiereimob.com.br">✉️ contato@premiereimob.com.br</a></li>
+            <li><a href="#">📍 Av. Paulista, 2100 — SP</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Première Imóveis. Todos os direitos reservados. CRECI-SP 000123-J</p>
+        <p>Desenvolvido com excelência</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

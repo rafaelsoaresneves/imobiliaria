@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Admin · Première Imóveis</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body class="admin-body">
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon">P</div>
+                <div>
+                    <strong>Première Admin</strong>
+                    <span class="text-gold"
+                        style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;display:block;color:var(--color-gold);">Painel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <p class="sidebar-section-label">Principal</p>
+                <a href="dashboard.html" class="sidebar-link active">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <p class="sidebar-section-label">Gestão</p>
+                <a href="imoveis.html" class="sidebar-link">
+                    <span class="icon">🏠</span> Imóveis
+                </a>
+                <a href="corretores.html" class="sidebar-link">
+                    <span class="icon">👤</span> Corretores
+                </a>
+                <a href="leads.html" class="sidebar-link">
+                    <span class="icon">📋</span> Leads
+                </a>
+                <p class="sidebar-section-label">Site</p>
+                <a href="../index.html" class="sidebar-link" target="_blank">
+                    <span class="icon">🌐</span> Ver Site
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div>
+                        <strong>Administrador</strong>
+                        <span>admin</span>
+                    </div>
+                </div>
+                <button class="sidebar-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="sidebar-toggle-btn" id="sidebarToggle">☰</button>
+                    <div>
+                        <h1 class="topbar-title">Dashboard</h1>
+                        <p class="breadcrumb">Admin › Dashboard</p>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <span style="font-size:0.82rem;color:var(--color-gray-400);" id="currentDate"></span>
+                    <a href="../index.html" class="btn btn-outline btn-sm" target="_blank">🌐 Ver Site</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <!-- KPIs -->
+                <div class="kpi-grid" id="kpiGrid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-icon-navy">🏠</div>
+                        <div class="kpi-info">
+                            <div class="value" id="kpiImoveis">—</div>
+                            <div class="label">Imóveis Cadastrados</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-icon-gold">👤</div>
+                        <div class="kpi-info">
+                            <div class="value" id="kpiCorretores">—</div>
+                            <div class="label">Corretores Ativos</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-icon-info">📋</div>
+                        <div class="kpi-info">
+                            <div class="value" id="kpiLeads">—</div>
+                            <div class="label">Leads Captados</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-icon-success">⭐</div>
+                        <div class="kpi-info">
+                            <div class="value" id="kpiDestaque">—</div>
+                            <div class="label">Em Destaque</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Widgets -->
+                <div class="dashboard-grid">
+                    <!-- Leads recentes -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h2>Leads Recentes</h2>
+                            <a href="leads.html" class="btn btn-outline btn-sm">Ver Todos</a>
+                        </div>
+                        <table class="admin-table" id="leadsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Interesse</th>
+                                    <th>Data</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadsTableBody">
+                                <tr>
+                                    <td colspan="4" class="table-empty">
+                                        <div class="spinner" style="margin:auto"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Imóveis recentes -->
+                    <div class="widget">
+                        <div class="widget-header">
+                            <h3>Imóveis Recentes</h3>
+                            <a href="imoveis.html" class="btn btn-outline btn-sm">Ver Todos</a>
+                        </div>
+                        <div class="widget-body" id="recentImoveis"
+                            style="display:flex;flex-direction:column;gap:0.75rem;padding:1rem 1.25rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Quick actions -->
+                <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+                    <a href="imoveis.html" class="btn btn-primary"><span>🏠</span> Cadastrar Imóvel</a>
+                    <a href="corretores.html" class="btn btn-outline"><span>👤</span> Adicionar Corretor</a>
+                    <a href="leads.html" class="btn btn-outline"><span>📋</span> Ver Leads</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="../js/data.js"></script>
+    <script src="../js/admin-dashboard.js"></script>
+</body>
+
+</html>

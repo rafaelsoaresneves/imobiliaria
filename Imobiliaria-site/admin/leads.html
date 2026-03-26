@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leads — Admin · WM Imóveis</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body class="admin-body">
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="sidebar">
+            <a href="dashboard.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon">P</div>
+                <div><strong>WM Admin</strong><span
+                        style="font-size:0.65rem;color:var(--color-gold);display:block;text-transform:uppercase;letter-spacing:0.1em;">Painel</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <p class="sidebar-section-label">Principal</p>
+                <a href="dashboard.html" class="sidebar-link"><span class="icon">📊</span> Dashboard</a>
+                <p class="sidebar-section-label">Gestão</p>
+                <a href="imoveis.html" class="sidebar-link"><span class="icon">🏠</span> Imóveis</a>
+                <a href="corretores.html" class="sidebar-link"><span class="icon">👤</span> Corretores</a>
+                <a href="leads.html" class="sidebar-link active"><span class="icon">📋</span> Leads</a>
+                <p class="sidebar-section-label">Site</p>
+                <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> Ver Site</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">A</div>
+                    <div><strong>Administrador</strong><span>admin</span></div>
+                </div>
+                <button class="sidebar-logout" onclick="logout()">🚪 Sair</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                    <button class="sidebar-toggle-btn" id="sidebarToggle">☰</button>
+                    <div>
+                        <h1 class="topbar-title">Gestão de Leads</h1>
+                        <p class="breadcrumb"><a href="dashboard.html">Admin</a> › Leads</p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <!-- Status quick filters -->
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+                    <button class="btn btn-primary btn-sm" onclick="filtrarStatus('')" id="fAll">Todos</button>
+                    <button class="btn btn-outline btn-sm" onclick="filtrarStatus('novo')" id="fNovo">🔵 Novo</button>
+                    <button class="btn btn-outline btn-sm" onclick="filtrarStatus('em-contato')" id="fContato">🟡 Em
+                        Contato</button>
+                    <button class="btn btn-outline btn-sm" onclick="filtrarStatus('negociando')" id="fNegoc">🟢
+                        Negociando</button>
+                    <button class="btn btn-outline btn-sm" onclick="filtrarStatus('fechado')" id="fFechado">⚫
+                        Fechado</button>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2 id="tCount">Leads</h2>
+                        <div class="table-actions">
+                            <input type="text" class="table-search" id="searchInput" placeholder="Buscar lead..."
+                                oninput="filtrarTabela()" />
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Telefone</th>
+                                    <th>Interesse</th>
+                                    <th>Origem</th>
+                                    <th>Data</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="emptyTable" class="table-empty hidden">
+                        <div class="empty-icon">📋</div>
+                        <p>Nenhum lead capturado ainda.</p>
+                        <p style="font-size:0.85rem;color:var(--color-gray-300);margin-top:0.5rem;">Os leads aparecerão
+                            aqui quando alguém preencher um formulário no site.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CONFIRM -->
+    <div class="modal-overlay" id="modalConfirm">
+        <div class="modal" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>Excluir lead</h3><button class="modal-close" onclick="fecharConfirm()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este lead?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="fecharConfirm()">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmarExclusao()">🗑 Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="../js/data.js"></script>
+    <script src="../js/admin-leads.js"></script>
+</body>
+
+</html>
