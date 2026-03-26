@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(ls -la /c/Projetos/imobiliaria/Imobiliaria-site/*.html)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(./gradlew compileJava)"
     ]
   }
 }
