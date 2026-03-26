@@ -5,7 +5,17 @@
       "Bash(wc:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(./gradlew compileJava)"
+      "Bash(./gradlew compileJava)",
+      "Bash(cmd /c \"gh pr create --title \"\"feat: implement Spring Boot backend for imobiliaria\"\" --body \"\"## Summary\\\\n\\\\n- Configura dependencias completas: Spring Security, JJWT 0.12.6, Validation, H2 \\(testes\\), PostgreSQL\\\\n- Corrige compose.yaml para expor porta 5432:5432\\\\n- Configura application.properties \\(datasource, JWT, admin, upload\\) e perfil de teste com H2\\\\n- Adiciona enums: TipoImovel, Finalidade, InteresseLead, StatusLead\\\\n- Adiciona entidades JPA: Corretor, Imovel, Lead\\\\n- Adiciona repositorios Spring Data JPA com JpaSpecificationExecutor\\\\n\\\\n## Test plan\\\\n\\\\n- [ ] docker compose up -d inicia PostgreSQL\\\\n- [ ] ./gradlew compileJava compila sem erros\\\\n- [ ] ./gradlew test passa com H2\\\\n- [ ] ./gradlew bootRun sobe a aplicacao\\\\n\\\\nGenerated with Claude Code\"\" 2>&1\")",
+      "Bash(cmd /c \"gh --version\")",
+      "Bash(cmd /c \"gh auth status\")",
+      "Bash(powershell.exe -Command \"cd ''C:\\\\Projetos\\\\imobiliaria''; gh pr create --title ''feat: implement Spring Boot backend for imobiliaria'' --body ''Backend Spring Boot 4.0.5 inicial: dependencias, compose.yaml, application.properties, enums, entidades JPA e repositorios.'' 2>&1\")",
+      "Bash(powershell.exe -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object Source\")",
+      "Bash(powershell.exe -Command \"where.exe gh 2>&1\")",
+      "Read(//c/Program Files/GitHub CLI/**)",
+      "Read(//c/Users/User/AppData/Local/GitHub CLI/**)",
+      "Read(//c/Users/User/**)",
+      "Bash(\"/c/Program Files/GitHub:*)"
     ]
   }
 }
