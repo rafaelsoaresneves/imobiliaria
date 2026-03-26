@@ -15,7 +15,14 @@
       "Read(//c/Program Files/GitHub CLI/**)",
       "Read(//c/Users/User/AppData/Local/GitHub CLI/**)",
       "Read(//c/Users/User/**)",
-      "Bash(\"/c/Program Files/GitHub:*)"
+      "Bash(\"/c/Program Files/GitHub:*)",
+      "Bash(BASE=\"C:/Projetos/imobiliaria/imobiliaria-backend/Imobliaria/src/main/java/com/rafadev/imobliaria\")",
+      "Bash(mkdir -p \"$BASE/dto/request\" \"$BASE/dto/response\" \"$BASE/exception\")",
+      "Bash(./gradlew test:*)",
+      "Bash(find /c/Projetos/imobiliaria/imobiliaria-backend/Imobliaria/build -name TEST-*.xml)",
+      "Bash(find /c/Projetos/imobiliaria/imobiliaria-backend/Imobliaria/build -name *.xml)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)"
     ]
   }
 }
