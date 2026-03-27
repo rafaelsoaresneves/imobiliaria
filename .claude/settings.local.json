@@ -28,7 +28,8 @@
       "Bash(echo \"✅ Para aplicar as mudanças, execute no seu terminal::*)",
       "Bash(docker compose:*)",
       "Bash(docker ps:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }
