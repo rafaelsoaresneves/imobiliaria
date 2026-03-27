@@ -1,11 +1,9 @@
 /* ── Property Listing Page ───────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-    // Navbar
+document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('navToggle')?.addEventListener('click', () => {
         document.getElementById('navLinks')?.classList.toggle('open');
     });
 
-    // Read URL params and pre-fill filters
     const params = new URLSearchParams(window.location.search);
     const finalidade = params.get('finalidade');
     const tipo = params.get('tipo');
@@ -13,11 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const quartos = params.get('quartos');
 
     if (finalidade) document.getElementById('filtFinalidade').value = finalidade;
-    if (tipo) document.getElementById('filtTipo').value = tipo;
-    if (busca) document.getElementById('filtBusca').value = busca;
-    if (quartos) document.getElementById('filtQuartos').value = quartos;
+    if (tipo)       document.getElementById('filtTipo').value = tipo;
+    if (busca)      document.getElementById('filtBusca').value = busca;
+    if (quartos)    document.getElementById('filtQuartos').value = quartos;
 
-    // Update page title based on filter
     if (finalidade === 'venda') {
         document.getElementById('pageTitle').textContent = 'Imóveis à Venda';
         document.getElementById('pageSubtitle').textContent = 'Encontre o imóvel perfeito para comprar';
@@ -30,28 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tipoLabel[tipo]) document.getElementById('pageTitle').textContent = tipoLabel[tipo];
     }
 
-    // Apply initial filters
-    setTimeout(aplicarFiltros, 50);
+    await aplicarFiltros();
 
-    // Live filter on Enter
     document.getElementById('filtBusca')?.addEventListener('keydown', e => {
         if (e.key === 'Enter') aplicarFiltros();
     });
 });
 
-function aplicarFiltros() {
+async function aplicarFiltros() {
     const params = {
         finalidade: document.getElementById('filtFinalidade')?.value || '',
-        tipo: document.getElementById('filtTipo')?.value || '',
-        quartos: document.getElementById('filtQuartos')?.value || '',
-        precoMin: document.getElementById('filtPrecoMin')?.value || '',
-        precoMax: document.getElementById('filtPrecoMax')?.value || '',
-        busca: document.getElementById('filtBusca')?.value.trim() || '',
-        ordenar: document.getElementById('ordenar')?.value || 'recente',
+        tipo:       document.getElementById('filtTipo')?.value || '',
+        quartos:    document.getElementById('filtQuartos')?.value || '',
+        precoMin:   document.getElementById('filtPrecoMin')?.value || '',
+        precoMax:   document.getElementById('filtPrecoMax')?.value || '',
+        busca:      document.getElementById('filtBusca')?.value.trim() || '',
+        ordenar:    document.getElementById('ordenar')?.value || 'recente',
     };
 
-    const lista = DB.imoveis.filter(params);
-    renderGrid(lista);
+    try {
+        const lista = await DB.imoveis.filter(params);
+        renderGrid(lista);
+    } catch {
+        renderGrid([]);
+    }
 }
 
 function limparFiltros() {
@@ -66,7 +65,6 @@ function renderGrid(lista) {
     const grid = document.getElementById('imoveisGrid');
     const empty = document.getElementById('emptyState');
     const count = document.getElementById('resultCount');
-
     if (!grid) return;
 
     if (count) count.textContent = `${lista.length} imóvel${lista.length !== 1 ? 'is' : 's'} encontrado${lista.length !== 1 ? 's' : ''}`;
@@ -76,14 +74,12 @@ function renderGrid(lista) {
         empty?.classList.remove('hidden');
         return;
     }
-
     empty?.classList.add('hidden');
     grid.innerHTML = lista.map(im => imovelCardHTML(im)).join('');
 }
 
 function imovelCardHTML(im) {
-    const fotos = im.fotos || [];
-    const img = fotos[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600';
+    const img = (im.fotos || [])[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600';
     return `
     <div class="imovel-card" onclick="location.href='imovel-detalhe.html?id=${im.id}'">
       <div class="imovel-card-img">
@@ -100,10 +96,10 @@ function imovelCardHTML(im) {
         <div class="imovel-card-titulo">${im.titulo}</div>
         <div class="imovel-card-loc">📍 ${im.bairro}, ${im.cidade} - ${im.estado}</div>
         <div class="imovel-card-details">
-          ${im.area ? `<div class="imovel-card-detail"><span class="icon">📐</span>${im.area}m²</div>` : ''}
+          ${im.area    ? `<div class="imovel-card-detail"><span class="icon">📐</span>${im.area}m²</div>` : ''}
           ${im.quartos ? `<div class="imovel-card-detail"><span class="icon">🛏</span>${im.quartos} qts</div>` : ''}
           ${im.banheiros ? `<div class="imovel-card-detail"><span class="icon">🚿</span>${im.banheiros} ban.</div>` : ''}
-          ${im.vagas ? `<div class="imovel-card-detail"><span class="icon">🚗</span>${im.vagas} vg.</div>` : ''}
+          ${im.vagas   ? `<div class="imovel-card-detail"><span class="icon">🚗</span>${im.vagas} vg.</div>` : ''}
         </div>
       </div>
     </div>`;

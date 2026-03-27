@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function enviarContato() {
+async function enviarContato() {
     const nome = document.getElementById('cNome')?.value.trim();
     const email = document.getElementById('cEmail')?.value.trim();
     const telefone = document.getElementById('cTelefone')?.value.trim();
@@ -15,18 +15,18 @@ function enviarContato() {
     if (!nome) { showToast('Informe seu nome.', 'error'); return; }
     if (!email) { showToast('Informe seu e-mail.', 'error'); return; }
     if (!telefone) { showToast('Informe seu telefone.', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('E-mail inválido.', 'error'); return; }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('E-mail inválido.', 'error'); return;
+    try {
+        await DB.leads.create({ nome, email, telefone, interesse, mensagem, origem: 'formulario-contato' });
+        showToast('Mensagem enviada com sucesso! Retornaremos em até 24h. 📨', 'success');
+        ['cNome', 'cEmail', 'cTelefone', 'cMensagem'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+    } catch {
+        showToast('Erro ao enviar. Tente novamente.', 'error');
     }
-
-    DB.leads.create({ nome, email, telefone, interesse, mensagem, status: 'novo', origem: 'formulario-contato' });
-    showToast('Mensagem enviada com sucesso! Retornaremos em até 24h. 📨', 'success');
-
-    ['cNome', 'cEmail', 'cTelefone', 'cMensagem'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
 }
 
 function showToast(msg, type = 'success') {

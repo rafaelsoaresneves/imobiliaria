@@ -65,6 +65,11 @@ public class LeadService {
         return toResponse(leadRepository.save(lead));
     }
 
+    public void remover(Long id) {
+        findById(id);
+        leadRepository.deleteById(id);
+    }
+
     private Lead findById(Long id) {
         return leadRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Lead não encontrado com id: " + id));
