@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,7 +28,7 @@ public class UploadController {
     private String uploadDir;
 
     @PostMapping("/upload")
-    public ResponseEntity<UploadResponse> upload(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<UploadResponse> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         String contentType = file.getContentType();
         if (contentType == null || !TIPOS_PERMITIDOS.contains(contentType)) {
             return ResponseEntity.badRequest().build();
@@ -44,7 +45,11 @@ public class UploadController {
         Files.createDirectories(uploadPath);
         Files.copy(file.getInputStream(), uploadPath.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
 
-        return ResponseEntity.ok(new UploadResponse("/api/files/" + filename));
+        // Retorna URL absoluta para que o frontend (em outro domínio) consiga carregar
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+        String fullUrl = baseUrl + "/api/files/" + filename;
+
+        return ResponseEntity.ok(new UploadResponse(fullUrl));
     }
 
     @GetMapping("/files/{filename}")
