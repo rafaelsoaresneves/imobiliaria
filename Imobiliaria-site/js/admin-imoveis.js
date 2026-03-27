@@ -175,17 +175,24 @@ async function salvarImovel() {
     try {
         // Upload das fotos selecionadas
         const fotosFiles = document.getElementById('mFotosFile').files || [];
-        const fotos = [];
+        const fotosNovas = [];
 
         for (let file of fotosFiles) {
             try {
                 const url = await DB.upload.enviarFoto(file);
-                fotos.push(url);
+                fotosNovas.push(url);
             } catch (e) {
                 showToast(`Erro ao enviar ${file.name}: ${e.message}`, 'error');
                 return;
             }
         }
+
+        const id = document.getElementById('imovelId').value;
+
+        // Preserva fotos existentes ao editar (já reflete remoções feitas no modal)
+        const fotosExistentes = id
+            ? (allImoveis.find(x => x.id === Number(id))?.fotos || [])
+            : [];
 
         const corretorIdVal = document.getElementById('mCorretor').value;
 
@@ -205,11 +212,10 @@ async function salvarImovel() {
             cep:        document.getElementById('mCep').value.trim(),
             descricao:  document.getElementById('mDescricao').value.trim(),
             destaque:   document.getElementById('mDestaque').checked,
-            fotos,
+            fotos:      [...fotosExistentes, ...fotosNovas],
             corretorId: corretorIdVal ? Number(corretorIdVal) : null,
         };
 
-        const id = document.getElementById('imovelId').value;
         if (id) {
             await DB.imoveis.update(id, dados);
             showToast('Imóvel atualizado com sucesso! ✓', 'success');
