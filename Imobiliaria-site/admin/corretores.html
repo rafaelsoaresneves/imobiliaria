@@ -124,10 +124,10 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">URL da Foto</label>
-                    <input type="url" class="form-control" id="mFoto" placeholder="https://exemplo.com/foto.jpg" />
-                    <small style="color:var(--color-gray-400);font-size:0.75rem;">Sugestão:
-                        https://randomuser.me/api/portraits/men/1.jpg</small>
+                    <label class="form-label">Foto do Corretor</label>
+                    <input type="file" id="mFotoFile" class="form-control" accept="image/*" />
+                    <small style="color:var(--color-gray-400);font-size:0.75rem;">Selecione uma imagem (JPG, PNG, etc).</small>
+                    <div id="fotoPreview" style="margin-top: 1rem;"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Bio / Apresentação</label>

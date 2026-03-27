@@ -10,6 +10,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('sidebar').classList.toggle('open');
     });
 
+    // Preview de fotos selecionadas
+    document.getElementById('mFotosFile')?.addEventListener('change', (e) => {
+        const preview = document.getElementById('fotosPreview');
+        preview.innerHTML = '';
+        Array.from(e.target.files || []).forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const div = document.createElement('div');
+                div.style.position = 'relative';
+                div.innerHTML = `
+                    <img src="${evt.target.result}" alt="Preview ${idx + 1}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" />
+                    <button type="button" onclick="removerFotoNova(${idx})" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">✕</button>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
     // Populate corretor select
     try {
         const corretores = await DB.corretores.getAll();
@@ -91,10 +110,11 @@ function abrirModalImovel(id) {
     const modal = document.getElementById('modalImovel');
     document.getElementById('modalTitle').textContent = id ? 'Editar Imóvel' : 'Novo Imóvel';
 
-    ['mTitulo', 'mPreco', 'mArea', 'mQuartos', 'mBanheiros', 'mVagas', 'mEndereco', 'mBairro', 'mCep', 'mDescricao', 'mFotos'].forEach(f => {
+    ['mTitulo', 'mPreco', 'mArea', 'mQuartos', 'mBanheiros', 'mVagas', 'mEndereco', 'mBairro', 'mCep', 'mDescricao', 'mFotosFile'].forEach(f => {
         const el = document.getElementById(f);
         if (el) el.value = '';
     });
+    document.getElementById('fotosPreview').innerHTML = '';
     document.getElementById('mCidade').value = 'São Paulo';
     document.getElementById('mEstado').value = 'SP';
     document.getElementById('mTipo').value = 'apartamento';
@@ -121,8 +141,15 @@ function abrirModalImovel(id) {
             document.getElementById('mEstado').value = im.estado || 'SP';
             document.getElementById('mCep').value = im.cep || '';
             document.getElementById('mDescricao').value = im.descricao || '';
-            document.getElementById('mFotos').value = (im.fotos || []).join('\n');
             document.getElementById('mDestaque').checked = !!im.destaque;
+            // Mostrar preview das fotos existentes
+            const preview = document.getElementById('fotosPreview');
+            preview.innerHTML = (im.fotos || []).map((foto, idx) => `
+                <div style="position: relative;">
+                    <img src="${foto}" alt="Foto ${idx + 1}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" />
+                    <button type="button" onclick="removerFotoExistente(${idx})" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">✕</button>
+                </div>
+            `).join('');
             // corretor agora é objeto {id, nome, creci, foto}
             document.getElementById('mCorretor').value = im.corretor?.id || '';
         }
@@ -143,31 +170,45 @@ async function salvarImovel() {
     if (!titulo) { showToast('O título é obrigatório.', 'error'); return; }
     if (!preco)  { showToast('Informe o preço.', 'error'); return; }
 
-    const fotosRaw = document.getElementById('mFotos').value.trim();
-    const fotos = fotosRaw ? fotosRaw.split('\n').map(f => f.trim()).filter(Boolean) : [];
-    const corretorIdVal = document.getElementById('mCorretor').value;
-
-    const dados = {
-        titulo,
-        tipo:       document.getElementById('mTipo').value,
-        finalidade: document.getElementById('mFinalidade').value,
-        preco:      Number(preco),
-        area:       Number(document.getElementById('mArea').value) || 0,
-        quartos:    Number(document.getElementById('mQuartos').value) || 0,
-        banheiros:  Number(document.getElementById('mBanheiros').value) || 0,
-        vagas:      Number(document.getElementById('mVagas').value) || 0,
-        endereco:   document.getElementById('mEndereco').value.trim(),
-        bairro:     document.getElementById('mBairro').value.trim(),
-        cidade:     document.getElementById('mCidade').value.trim(),
-        estado:     document.getElementById('mEstado').value.trim().toUpperCase(),
-        cep:        document.getElementById('mCep').value.trim(),
-        descricao:  document.getElementById('mDescricao').value.trim(),
-        destaque:   document.getElementById('mDestaque').checked,
-        fotos,
-        corretorId: corretorIdVal ? Number(corretorIdVal) : null,
-    };
+    showToast('Salvando imóvel...', 'info');
 
     try {
+        // Upload das fotos selecionadas
+        const fotosFiles = document.getElementById('mFotosFile').files || [];
+        const fotos = [];
+
+        for (let file of fotosFiles) {
+            try {
+                const url = await DB.upload.enviarFoto(file);
+                fotos.push(url);
+            } catch (e) {
+                showToast(`Erro ao enviar ${file.name}: ${e.message}`, 'error');
+                return;
+            }
+        }
+
+        const corretorIdVal = document.getElementById('mCorretor').value;
+
+        const dados = {
+            titulo,
+            tipo:       document.getElementById('mTipo').value,
+            finalidade: document.getElementById('mFinalidade').value,
+            preco:      Number(preco),
+            area:       Number(document.getElementById('mArea').value) || 0,
+            quartos:    Number(document.getElementById('mQuartos').value) || 0,
+            banheiros:  Number(document.getElementById('mBanheiros').value) || 0,
+            vagas:      Number(document.getElementById('mVagas').value) || 0,
+            endereco:   document.getElementById('mEndereco').value.trim(),
+            bairro:     document.getElementById('mBairro').value.trim(),
+            cidade:     document.getElementById('mCidade').value.trim(),
+            estado:     document.getElementById('mEstado').value.trim().toUpperCase(),
+            cep:        document.getElementById('mCep').value.trim(),
+            descricao:  document.getElementById('mDescricao').value.trim(),
+            destaque:   document.getElementById('mDestaque').checked,
+            fotos,
+            corretorId: corretorIdVal ? Number(corretorIdVal) : null,
+        };
+
         const id = document.getElementById('imovelId').value;
         if (id) {
             await DB.imoveis.update(id, dados);
@@ -214,6 +255,33 @@ async function confirmarExclusao() {
         }
     }
     fecharConfirm();
+}
+
+function removerFotoNova(idx) {
+    const input = document.getElementById('mFotosFile');
+    const dataTransfer = new DataTransfer();
+    Array.from(input.files).forEach((file, i) => {
+        if (i !== idx) dataTransfer.items.add(file);
+    });
+    input.files = dataTransfer.files;
+    input.dispatchEvent(new Event('change'));
+}
+
+function removerFotoExistente(idx) {
+    const imovelId = document.getElementById('imovelId').value;
+    if (!imovelId) return;
+    const im = allImoveis.find(x => x.id === Number(imovelId));
+    if (im && im.fotos) {
+        const novasFotos = im.fotos.filter((_, i) => i !== idx);
+        im.fotos = novasFotos;
+        const preview = document.getElementById('fotosPreview');
+        preview.innerHTML = novasFotos.map((foto, i) => `
+            <div style="position: relative;">
+                <img src="${foto}" alt="Foto ${i + 1}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" />
+                <button type="button" onclick="removerFotoExistente(${i})" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">✕</button>
+            </div>
+        `).join('');
+    }
 }
 
 function logout() { DB.auth.logout(); window.location.href = 'index.html'; }

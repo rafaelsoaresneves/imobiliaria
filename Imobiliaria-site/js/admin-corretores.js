@@ -9,6 +9,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('sidebar').classList.toggle('open');
     });
 
+    // Preview de foto selecionada
+    document.getElementById('mFotoFile')?.addEventListener('change', (e) => {
+        const preview = document.getElementById('fotoPreview');
+        preview.innerHTML = '';
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <img src="${evt.target.result}" alt="Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     await carregarTabela();
 });
 
@@ -67,10 +85,11 @@ function renderTabela(lista) {
 function abrirModalCorretor() {
     document.getElementById('corretorId').value = '';
     document.getElementById('modalTitle').textContent = 'Novo Corretor';
-    ['mNome', 'mCreci', 'mTelefone', 'mEmail', 'mFoto', 'mBio'].forEach(id => {
+    ['mNome', 'mCreci', 'mTelefone', 'mEmail', 'mFotoFile', 'mBio'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
+    document.getElementById('fotoPreview').innerHTML = '';
     document.getElementById('mEspecialidade').value = 'Alto Padrão';
     document.getElementById('modalCorretor').classList.add('active');
 }
@@ -85,8 +104,17 @@ async function editarCorretor(id) {
     document.getElementById('mTelefone').value = c.telefone || '';
     document.getElementById('mEmail').value = c.email || '';
     document.getElementById('mEspecialidade').value = c.especialidade || 'Alto Padrão';
-    document.getElementById('mFoto').value = c.foto || '';
+    document.getElementById('mFotoFile').value = '';
     document.getElementById('mBio').value = c.bio || '';
+    // Mostrar foto existente no preview
+    const preview = document.getElementById('fotoPreview');
+    if (c.foto) {
+        preview.innerHTML = `
+            <img src="${c.foto}" alt="Foto atual" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />
+        `;
+    } else {
+        preview.innerHTML = '';
+    }
     document.getElementById('modalCorretor').classList.add('active');
 }
 
@@ -100,17 +128,39 @@ async function salvarCorretor() {
     if (!nome) { showToast('O nome é obrigatório.', 'error'); return; }
     if (!creci) { showToast('O CRECI é obrigatório.', 'error'); return; }
 
-    const dados = {
-        nome,
-        creci,
-        telefone:     document.getElementById('mTelefone').value.trim(),
-        email:        document.getElementById('mEmail').value.trim(),
-        especialidade:document.getElementById('mEspecialidade').value,
-        foto:         document.getElementById('mFoto').value.trim(),
-        bio:          document.getElementById('mBio').value.trim(),
-    };
+    showToast('Salvando corretor...', 'info');
 
     try {
+        let foto = '';
+
+        // Upload da foto se selecionada
+        const fotoFile = document.getElementById('mFotoFile').files?.[0];
+        if (fotoFile) {
+            try {
+                foto = await DB.upload.enviarFoto(fotoFile);
+            } catch (e) {
+                showToast(`Erro ao enviar foto: ${e.message}`, 'error');
+                return;
+            }
+        } else {
+            // Se não é nova, mantém a foto existente
+            const id = document.getElementById('corretorId').value;
+            if (id) {
+                const c = allCorretores.find(x => x.id === Number(id));
+                foto = c?.foto || '';
+            }
+        }
+
+        const dados = {
+            nome,
+            creci,
+            telefone:     document.getElementById('mTelefone').value.trim(),
+            email:        document.getElementById('mEmail').value.trim(),
+            especialidade:document.getElementById('mEspecialidade').value,
+            foto,
+            bio:          document.getElementById('mBio').value.trim(),
+        };
+
         const id = document.getElementById('corretorId').value;
         if (id) {
             await DB.corretores.update(id, dados);

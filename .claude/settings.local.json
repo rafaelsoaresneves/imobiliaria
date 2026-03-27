@@ -22,7 +22,9 @@
       "Bash(find /c/Projetos/imobiliaria/imobiliaria-backend/Imobliaria/build -name TEST-*.xml)",
       "Bash(find /c/Projetos/imobiliaria/imobiliaria-backend/Imobliaria/build -name *.xml)",
       "Bash(for f:*)",
-      "Bash(do echo:*)"
+      "Bash(do echo:*)",
+      "Bash(./gradlew clean:*)",
+      "Bash(python3 -c \":*)"
     ]
   }
 }

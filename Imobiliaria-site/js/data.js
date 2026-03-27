@@ -230,6 +230,31 @@ const DB = (() => {
     },
   };
 
+  /* ── Upload de Arquivos ──────────────────────────────────── */
+  const upload = {
+    async enviarFoto(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const headers = {};
+      const token = sessionStorage.getItem(TOKEN_KEY);
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`${API}/api/upload`, {
+        method: 'POST',
+        headers,
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error(`Erro no upload: ${res.status}`);
+      }
+
+      const data = await res.json();
+      return data.url; // retorna a URL do arquivo enviado
+    }
+  };
+
   /* ── Formatters ──────────────────────────────────────────── */
   const fmt = {
     preco(valor, finalidade) {
@@ -249,5 +274,5 @@ const DB = (() => {
     },
   };
 
-  return { imoveis, corretores, leads, auth, fmt };
+  return { imoveis, corretores, leads, auth, fmt, upload };
 })();
