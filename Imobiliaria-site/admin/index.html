@@ -89,7 +89,7 @@
         // If already logged in, redirect
         if (DB.auth.isLoggedIn()) window.location.href = 'dashboard.html';
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const user = document.getElementById('loginUser').value.trim();
             const pass = document.getElementById('loginPass').value;
@@ -99,15 +99,14 @@
             btn.disabled = true;
             btn.textContent = 'Verificando...';
 
-            setTimeout(() => {
-                if (DB.auth.login(user, pass)) {
-                    window.location.href = 'dashboard.html';
-                } else {
-                    err.classList.remove('hidden');
-                    btn.disabled = false;
-                    btn.textContent = 'Entrar no Painel →';
-                }
-            }, 500);
+            const ok = await DB.auth.login(user, pass);
+            if (ok) {
+                window.location.href = 'dashboard.html';
+            } else {
+                err.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = 'Entrar no Painel →';
+            }
         }
 
         function toggleSenha() {

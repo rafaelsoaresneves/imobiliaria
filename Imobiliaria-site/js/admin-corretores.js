@@ -2,19 +2,41 @@
 let deleteId = null;
 let allCorretores = [];
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!DB.auth.guard()) return;
 
     document.getElementById('sidebarToggle')?.addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
     });
 
-    carregarTabela();
+    // Preview de foto selecionada
+    document.getElementById('mFotoFile')?.addEventListener('change', (e) => {
+        const preview = document.getElementById('fotoPreview');
+        preview.innerHTML = '';
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <img src="${evt.target.result}" alt="Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    await carregarTabela();
 });
 
-function carregarTabela() {
-    allCorretores = DB.corretores.getAll();
-    filtrarTabela();
+async function carregarTabela() {
+    try {
+        allCorretores = await DB.corretores.getAll();
+        filtrarTabela();
+    } catch {
+        showToast('Erro ao carregar corretores.', 'error');
+    }
 }
 
 function filtrarTabela() {
@@ -52,8 +74,8 @@ function renderTabela(lista) {
       <td><a href="mailto:${c.email}" style="color:var(--color-navy);font-size:0.82rem;">${c.email}</a></td>
       <td>
         <div class="table-actions-cell">
-          <button class="btn btn-outline btn-sm" onclick="editarCorretor('${c.id}')">✏️ Editar</button>
-          <button class="btn btn-danger btn-sm" onclick="pedirExclusao('${c.id}')">🗑</button>
+          <button class="btn btn-outline btn-sm" onclick="editarCorretor(${c.id})">✏️ Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="pedirExclusao(${c.id})">🗑</button>
         </div>
       </td>
     </tr>
@@ -63,16 +85,17 @@ function renderTabela(lista) {
 function abrirModalCorretor() {
     document.getElementById('corretorId').value = '';
     document.getElementById('modalTitle').textContent = 'Novo Corretor';
-    ['mNome', 'mCreci', 'mTelefone', 'mEmail', 'mFoto', 'mBio'].forEach(id => {
+    ['mNome', 'mCreci', 'mTelefone', 'mEmail', 'mFotoFile', 'mBio'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
+    document.getElementById('fotoPreview').innerHTML = '';
     document.getElementById('mEspecialidade').value = 'Alto Padrão';
     document.getElementById('modalCorretor').classList.add('active');
 }
 
-function editarCorretor(id) {
-    const c = DB.corretores.getById(id);
+async function editarCorretor(id) {
+    const c = allCorretores.find(x => x.id === id);
     if (!c) return;
     document.getElementById('corretorId').value = id;
     document.getElementById('modalTitle').textContent = 'Editar Corretor';
@@ -81,8 +104,17 @@ function editarCorretor(id) {
     document.getElementById('mTelefone').value = c.telefone || '';
     document.getElementById('mEmail').value = c.email || '';
     document.getElementById('mEspecialidade').value = c.especialidade || 'Alto Padrão';
-    document.getElementById('mFoto').value = c.foto || '';
+    document.getElementById('mFotoFile').value = '';
     document.getElementById('mBio').value = c.bio || '';
+    // Mostrar foto existente no preview
+    const preview = document.getElementById('fotoPreview');
+    if (c.foto) {
+        preview.innerHTML = `
+            <img src="${c.foto}" alt="Foto atual" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />
+        `;
+    } else {
+        preview.innerHTML = '';
+    }
     document.getElementById('modalCorretor').classList.add('active');
 }
 
@@ -90,33 +122,58 @@ function fecharModal() {
     document.getElementById('modalCorretor').classList.remove('active');
 }
 
-function salvarCorretor() {
+async function salvarCorretor() {
     const nome = document.getElementById('mNome').value.trim();
     const creci = document.getElementById('mCreci').value.trim();
     if (!nome) { showToast('O nome é obrigatório.', 'error'); return; }
     if (!creci) { showToast('O CRECI é obrigatório.', 'error'); return; }
 
-    const dados = {
-        nome,
-        creci,
-        telefone: document.getElementById('mTelefone').value.trim(),
-        email: document.getElementById('mEmail').value.trim(),
-        especialidade: document.getElementById('mEspecialidade').value,
-        foto: document.getElementById('mFoto').value.trim(),
-        bio: document.getElementById('mBio').value.trim(),
-    };
+    showToast('Salvando corretor...', 'info');
 
-    const id = document.getElementById('corretorId').value;
-    if (id) {
-        DB.corretores.update(id, dados);
-        showToast('Corretor atualizado! ✓', 'success');
-    } else {
-        DB.corretores.create(dados);
-        showToast('Corretor cadastrado! ✓', 'success');
+    try {
+        let foto = '';
+
+        // Upload da foto se selecionada
+        const fotoFile = document.getElementById('mFotoFile').files?.[0];
+        if (fotoFile) {
+            try {
+                foto = await DB.upload.enviarFoto(fotoFile);
+            } catch (e) {
+                showToast(`Erro ao enviar foto: ${e.message}`, 'error');
+                return;
+            }
+        } else {
+            // Se não é nova, mantém a foto existente
+            const id = document.getElementById('corretorId').value;
+            if (id) {
+                const c = allCorretores.find(x => x.id === Number(id));
+                foto = c?.foto || '';
+            }
+        }
+
+        const dados = {
+            nome,
+            creci,
+            telefone:     document.getElementById('mTelefone').value.trim(),
+            email:        document.getElementById('mEmail').value.trim(),
+            especialidade:document.getElementById('mEspecialidade').value,
+            foto,
+            bio:          document.getElementById('mBio').value.trim(),
+        };
+
+        const id = document.getElementById('corretorId').value;
+        if (id) {
+            await DB.corretores.update(id, dados);
+            showToast('Corretor atualizado! ✓', 'success');
+        } else {
+            await DB.corretores.create(dados);
+            showToast('Corretor cadastrado! ✓', 'success');
+        }
+        fecharModal();
+        await carregarTabela();
+    } catch (e) {
+        showToast('Erro ao salvar: ' + e.message, 'error');
     }
-
-    fecharModal();
-    carregarTabela();
 }
 
 function pedirExclusao(id) {
@@ -129,11 +186,15 @@ function fecharConfirm() {
     document.getElementById('modalConfirm').classList.remove('active');
 }
 
-function confirmarExclusao() {
+async function confirmarExclusao() {
     if (deleteId) {
-        DB.corretores.remove(deleteId);
-        showToast('Corretor excluído.', 'info');
-        carregarTabela();
+        try {
+            await DB.corretores.remove(deleteId);
+            showToast('Corretor excluído.', 'info');
+            await carregarTabela();
+        } catch (e) {
+            showToast('Erro ao excluir: ' + e.message, 'error');
+        }
     }
     fecharConfirm();
 }

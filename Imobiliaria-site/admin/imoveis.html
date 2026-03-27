@@ -168,11 +168,10 @@
                         placeholder="Descreva o imóvel detalhadamente..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">URLs das fotos (uma por linha)</label>
-                    <textarea class="form-control" id="mFotos" rows="4"
-                        placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"></textarea>
-                    <small style="color:var(--color-gray-400);font-size:0.75rem;">Cole URLs de imagens separadas por
-                        linha. Use links do Unsplash para demonstração.</small>
+                    <label class="form-label">Fotos do Imóvel</label>
+                    <input type="file" id="mFotosFile" class="form-control" multiple accept="image/*" />
+                    <small style="color:var(--color-gray-400);font-size:0.75rem;">Selecione uma ou mais imagens (JPG, PNG, etc). Elas serão enviadas automaticamente ao salvar.</small>
+                    <div id="fotosPreview" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;"></div>
                 </div>
 
                 <h4 class="form-section-title">Outras Configurações</h4>

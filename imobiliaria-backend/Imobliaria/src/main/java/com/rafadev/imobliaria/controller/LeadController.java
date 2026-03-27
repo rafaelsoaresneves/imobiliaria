@@ -34,4 +34,10 @@ public class LeadController {
                                                           @RequestBody @Valid AtualizarStatusLeadRequest request) {
         return ResponseEntity.ok(leadService.atualizarStatus(id, request));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        leadService.remover(id);
+        return ResponseEntity.noContent().build();
+    }
 }

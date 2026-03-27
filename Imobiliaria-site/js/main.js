@@ -1,42 +1,49 @@
 /* ── Homepage JS ─────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
-    // Navbar scroll transparency
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 60) navbar.classList.add('scrolled');
         else navbar.classList.remove('scrolled');
     });
 
-    // Mobile nav
     document.getElementById('navToggle')?.addEventListener('click', () => {
         document.getElementById('navLinks')?.classList.toggle('open');
     });
 
-    // Stat counter
-    const imovelCount = DB.imoveis.getAll().length;
-    const el = document.getElementById('statImoveis');
-    if (el) el.textContent = imovelCount > 0 ? imovelCount + '+' : '500+';
-
     // Load featured properties
     const destaqueGrid = document.getElementById('imoveisDestaque');
     if (destaqueGrid) {
-        const destaques = DB.imoveis.filter({ destaque: true }).slice(0, 6);
-        if (destaques.length === 0) {
-            destaqueGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--color-gray-400);padding:2rem;">Nenhum imóvel em destaque no momento.</p>';
-        } else {
-            destaqueGrid.innerHTML = destaques.map(imovelCardHTML).join('');
+        try {
+            const [destaques, todos] = await Promise.all([
+                DB.imoveis.filter({ destaque: true }),
+                DB.imoveis.getAll(),
+            ]);
+            const el = document.getElementById('statImoveis');
+            if (el) el.textContent = todos.length > 0 ? todos.length + '+' : '500+';
+
+            if (destaques.length === 0) {
+                destaqueGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--color-gray-400);padding:2rem;">Nenhum imóvel em destaque no momento.</p>';
+            } else {
+                destaqueGrid.innerHTML = destaques.slice(0, 6).map(imovelCardHTML).join('');
+            }
+        } catch {
+            destaqueGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--color-gray-400);padding:2rem;">Erro ao carregar imóveis. Verifique se o servidor está rodando.</p>';
         }
     }
 
     // Load agents
     const corretoresHome = document.getElementById('corretoresHome');
     if (corretoresHome) {
-        const corrs = DB.corretores.getAll().slice(0, 4);
-        if (corrs.length === 0) {
-            corretoresHome.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--color-gray-400);">Nenhum corretor cadastrado.</p>';
-        } else {
-            corretoresHome.innerHTML = corrs.map(corretorCardHTML).join('');
+        try {
+            const corrs = await DB.corretores.getAll();
+            if (corrs.length === 0) {
+                corretoresHome.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--color-gray-400);">Nenhum corretor cadastrado.</p>';
+            } else {
+                corretoresHome.innerHTML = corrs.slice(0, 4).map(corretorCardHTML).join('');
+            }
+        } catch {
+            corretoresHome.innerHTML = '';
         }
     }
 
@@ -50,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Search button
     document.getElementById('searchBtn')?.addEventListener('click', () => {
         const busca = document.getElementById('searchBusca')?.value.trim();
         const tipo = document.getElementById('searchTipo')?.value;
@@ -63,40 +69,31 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `imoveis.html?${params.toString()}`;
     });
 
-    // Enter key on search
     document.getElementById('searchBusca')?.addEventListener('keydown', e => {
         if (e.key === 'Enter') document.getElementById('searchBtn')?.click();
     });
 });
 
-// Lead form (homepage)
-function enviarLead() {
+async function enviarLead() {
     const nome = document.getElementById('leadNome')?.value.trim();
     const email = document.getElementById('leadEmail')?.value.trim();
     const telefone = document.getElementById('leadTelefone')?.value.trim();
     const interesse = document.getElementById('leadInteresse')?.value;
 
-    if (!nome || !email || !telefone) {
-        showToast('Preencha nome, e-mail e telefone.', 'error');
-        return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast('E-mail inválido.', 'error');
-        return;
-    }
+    if (!nome || !email || !telefone) { showToast('Preencha nome, e-mail e telefone.', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('E-mail inválido.', 'error'); return; }
 
-    DB.leads.create({ nome, email, telefone, interesse, status: 'novo', origem: 'homepage' });
-    showToast('Recebemos seu contato! Em breve retornaremos. 🎉', 'success');
-
-    ['leadNome', 'leadEmail', 'leadTelefone'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
+    try {
+        await DB.leads.create({ nome, email, telefone, interesse, origem: 'homepage' });
+        showToast('Recebemos seu contato! Em breve retornaremos. 🎉', 'success');
+        ['leadNome', 'leadEmail', 'leadTelefone'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    } catch {
+        showToast('Erro ao enviar. Tente novamente.', 'error');
+    }
 }
 
 function imovelCardHTML(im) {
-    const fotos = im.fotos || [];
-    const img = fotos[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600';
+    const img = (im.fotos || [])[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600';
     return `
     <div class="imovel-card" onclick="location.href='imovel-detalhe.html?id=${im.id}'">
       <div class="imovel-card-img">

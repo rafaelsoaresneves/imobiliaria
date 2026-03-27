@@ -2,7 +2,7 @@
 let currentImovelFotos = [];
 let lightboxIdx = 0;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('navToggle')?.addEventListener('click', () => {
         document.getElementById('navLinks')?.classList.toggle('open');
     });
@@ -13,31 +13,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const im = DB.imoveis.getById(id);
-    if (!im) {
-        document.getElementById('imovelTitulo').textContent = 'Imóvel não encontrado';
-        return;
+    try {
+        const im = await DB.imoveis.getById(id);
+        if (!im) {
+            document.getElementById('imovelTitulo').textContent = 'Imóvel não encontrado';
+            return;
+        }
+        renderImovel(im);
+        renderSimilares(im);
+    } catch {
+        document.getElementById('imovelTitulo').textContent = 'Erro ao carregar imóvel';
     }
-
-    renderImovel(im);
-    renderSimilares(im);
 });
 
 function renderImovel(im) {
-    currentImovelFotos = im.fotos || ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900'];
+    currentImovelFotos = im.fotos?.length ? im.fotos : ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900'];
 
-    // Meta/Page title
     document.title = `${im.titulo} — Première Imóveis`;
     document.getElementById('pageTitle').textContent = im.titulo;
-
-    // Header
     document.getElementById('imovelTitulo').textContent = im.titulo;
     document.getElementById('breadcrumbTitulo').textContent = im.titulo;
     document.getElementById('imovelEndereco').textContent = `${im.endereco}, ${im.bairro} — ${im.cidade}/${im.estado}`;
     document.getElementById('imovelPreco').textContent = DB.fmt.preco(im.preco, im.finalidade);
     document.getElementById('imovelFinalidade').textContent = DB.fmt.finalidade(im.finalidade);
 
-    // Gallery
     const mainPhoto = document.getElementById('mainPhoto');
     if (mainPhoto) mainPhoto.src = currentImovelFotos[0];
 
@@ -55,7 +54,6 @@ function renderImovel(im) {
         }).join('');
     }
 
-    // Badges
     const badgesEl = document.getElementById('badgesArea');
     if (badgesEl) {
         badgesEl.innerHTML = `
@@ -65,14 +63,13 @@ function renderImovel(im) {
     `;
     }
 
-    // Info grid
     const infoEl = document.getElementById('infoGrid');
     if (infoEl) {
         const infos = [
-            { label: 'Área', value: `${im.area}m²` },
-            { label: 'Quartos', value: im.quartos || '—' },
+            { label: 'Área',      value: im.area ? `${im.area}m²` : '—' },
+            { label: 'Quartos',   value: im.quartos   || '—' },
             { label: 'Banheiros', value: im.banheiros || '—' },
-            { label: 'Vagas', value: im.vagas || '—' },
+            { label: 'Vagas',     value: im.vagas     || '—' },
         ];
         infoEl.innerHTML = infos.map(i => `
       <div class="info-item">
@@ -81,45 +78,45 @@ function renderImovel(im) {
       </div>`).join('');
     }
 
-    // Description
     const descEl = document.getElementById('imovelDesc');
     if (descEl) descEl.textContent = im.descricao || 'Descrição não disponível.';
 
-    // Full location
     const locEl = document.getElementById('imovelLocFull');
     if (locEl) locEl.textContent = `${im.endereco}, ${im.bairro}, ${im.cidade} - ${im.estado}, CEP ${im.cep}`;
 
-    // Corretor
+    // Corretor vem embutido na resposta da API como objeto {id, nome, creci, foto}
+    // Não precisa mais chamar DB.corretores.getById()
     if (im.corretor) {
-        const corretor = DB.corretores.getById(im.corretor);
-        if (corretor) {
-            document.getElementById('corretorCard').style.display = 'flex';
-            document.getElementById('corretorFoto').src = corretor.foto || '';
-            document.getElementById('corretorNome').textContent = corretor.nome;
-            document.getElementById('corretorCreci').textContent = corretor.creci;
-            document.getElementById('corretorTel').href = `tel:${corretor.telefone}`;
-            document.getElementById('corretorTel').textContent = `📞 ${corretor.telefone}`;
-            document.getElementById('corretorWp').href = `https://wa.me/55${corretor.telefone?.replace(/\D/g, '')}`;
-        }
+        const c = im.corretor;
+        document.getElementById('corretorCard').style.display = 'flex';
+        document.getElementById('corretorFoto').src = c.foto || '';
+        document.getElementById('corretorNome').textContent = c.nome;
+        document.getElementById('corretorCreci').textContent = c.creci;
+        const tel = c.telefone || '';
+        document.getElementById('corretorTel').href = `tel:${tel}`;
+        document.getElementById('corretorTel').textContent = `📞 ${tel}`;
+        document.getElementById('corretorWp').href = `https://wa.me/55${tel.replace(/\D/g, '')}`;
     }
 }
 
-function renderSimilares(im) {
+async function renderSimilares(im) {
     const container = document.getElementById('similares');
     if (!container) return;
+    try {
+        let similares = (await DB.imoveis.filter({ tipo: im.tipo, finalidade: im.finalidade }))
+            .filter(i => String(i.id) !== String(im.id))
+            .slice(0, 3);
 
-    let similares = DB.imoveis.filter({ tipo: im.tipo, finalidade: im.finalidade })
-        .filter(i => i.id !== im.id)
-        .slice(0, 3);
-
-    if (similares.length === 0) {
-        similares = DB.imoveis.getAll().filter(i => i.id !== im.id).slice(0, 3);
+        if (similares.length === 0) {
+            const todos = await DB.imoveis.getAll();
+            similares = todos.filter(i => String(i.id) !== String(im.id)).slice(0, 3);
+        }
+        container.innerHTML = similares.map(i => imovelCardHTML(i)).join('');
+    } catch {
+        container.innerHTML = '';
     }
-
-    container.innerHTML = similares.map(i => imovelCardHTML(i)).join('');
 }
 
-// Lightbox
 function openLightbox(idx) {
     lightboxIdx = idx;
     const lb = document.getElementById('lightbox');
@@ -145,28 +142,24 @@ document.addEventListener('keydown', e => {
     }
 });
 
-// Contact form
-function enviarInteresse() {
+async function enviarInteresse() {
     const nome = document.getElementById('sNome')?.value.trim();
     const email = document.getElementById('sEmail')?.value.trim();
     const telefone = document.getElementById('sTelefone')?.value.trim();
     const mensagem = document.getElementById('sMensagem')?.value.trim();
-    const id = new URLSearchParams(window.location.search).get('id');
 
     if (!nome || !email) { showToast('Preencha nome e e-mail.', 'error'); return; }
 
-    DB.leads.create({
-        nome, email, telefone, mensagem,
-        imovelId: id,
-        interesse: 'Imóvel Específico',
-        status: 'novo',
-        origem: 'detalhe-imovel',
-    });
-    showToast('Solicitação enviada! Entraremos em contato em breve. 🎉', 'success');
-    ['sNome', 'sEmail', 'sTelefone', 'sMensagem'].forEach(id2 => {
-        const el = document.getElementById(id2);
-        if (el) el.value = '';
-    });
+    try {
+        await DB.leads.create({ nome, email, telefone, mensagem, interesse: 'Imóvel Específico', origem: 'detalhe-imovel' });
+        showToast('Solicitação enviada! Entraremos em contato em breve. 🎉', 'success');
+        ['sNome', 'sEmail', 'sTelefone', 'sMensagem'].forEach(id2 => {
+            const el = document.getElementById(id2);
+            if (el) el.value = '';
+        });
+    } catch {
+        showToast('Erro ao enviar. Tente novamente.', 'error');
+    }
 }
 
 function imovelCardHTML(im) {
@@ -186,9 +179,9 @@ function imovelCardHTML(im) {
         <div class="imovel-card-titulo">${im.titulo}</div>
         <div class="imovel-card-loc">📍 ${im.bairro}, ${im.cidade}</div>
         <div class="imovel-card-details">
-          ${im.area ? `<div class="imovel-card-detail">📐 ${im.area}m²</div>` : ''}
+          ${im.area    ? `<div class="imovel-card-detail">📐 ${im.area}m²</div>` : ''}
           ${im.quartos ? `<div class="imovel-card-detail">🛏 ${im.quartos} qts</div>` : ''}
-          ${im.vagas ? `<div class="imovel-card-detail">🚗 ${im.vagas} vg.</div>` : ''}
+          ${im.vagas   ? `<div class="imovel-card-detail">🚗 ${im.vagas} vg.</div>` : ''}
         </div>
       </div>
     </div>`;

@@ -3,27 +3,30 @@ let deleteId = null;
 let allLeads = [];
 let statusFlt = '';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!DB.auth.guard()) return;
 
     document.getElementById('sidebarToggle')?.addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
     });
 
-    carregarTabela();
+    await carregarTabela();
 });
 
-function carregarTabela() {
-    allLeads = DB.leads.getAll();
-    filtrarTabela();
+async function carregarTabela() {
+    try {
+        allLeads = await DB.leads.getAll();
+        filtrarTabela();
+    } catch {
+        showToast('Erro ao carregar leads.', 'error');
+    }
 }
 
 function filtrarStatus(status) {
     statusFlt = status;
-    // Update button styles
     ['fAll', 'fNovo', 'fContato', 'fNegoc', 'fFechado'].forEach(id => {
         const btn = document.getElementById(id);
-        if (btn) { btn.className = 'btn btn-outline btn-sm'; }
+        if (btn) btn.className = 'btn btn-outline btn-sm';
     });
     const activeMap = { '': 'fAll', 'novo': 'fNovo', 'em-contato': 'fContato', 'negociando': 'fNegoc', 'fechado': 'fFechado' };
     const active = document.getElementById(activeMap[status]);
@@ -58,10 +61,10 @@ function renderTabela(lista) {
 
     empty.classList.add('hidden');
     const statusLabels = {
-        novo: { label: 'Novo', cls: 'badge-info' },
-        'em-contato': { label: 'Em Contato', cls: 'badge-warning' },
-        negociando: { label: 'Negociando', cls: 'badge-success' },
-        fechado: { label: 'Fechado', cls: 'badge-navy' },
+        novo:          { label: 'Novo',        cls: 'badge-info' },
+        'em-contato':  { label: 'Em Contato',  cls: 'badge-warning' },
+        negociando:    { label: 'Negociando',   cls: 'badge-success' },
+        fechado:       { label: 'Fechado',      cls: 'badge-navy' },
     };
 
     tbody.innerHTML = lista.map(l => {
@@ -78,32 +81,34 @@ function renderTabela(lista) {
       <td><span class="badge badge-gray" style="font-size:0.7rem;">${l.origem || '—'}</span></td>
       <td style="font-size:0.82rem;color:var(--color-gray-400);">${DB.fmt.data(l.criadoEm)}</td>
       <td>
-        <select class="status-select status-${l.status}" onchange="atualizarStatus('${l.id}', this.value, this)">
-          <option value="novo"         ${l.status === 'novo' ? 'selected' : ''}>🔵 Novo</option>
-          <option value="em-contato"   ${l.status === 'em-contato' ? 'selected' : ''}>🟡 Em Contato</option>
-          <option value="negociando"   ${l.status === 'negociando' ? 'selected' : ''}>🟢 Negociando</option>
-          <option value="fechado"      ${l.status === 'fechado' ? 'selected' : ''}>⚫ Fechado</option>
+        <select class="status-select status-${l.status}" onchange="atualizarStatus(${l.id}, this.value, this)">
+          <option value="novo"        ${l.status === 'novo'        ? 'selected' : ''}>🔵 Novo</option>
+          <option value="em-contato"  ${l.status === 'em-contato'  ? 'selected' : ''}>🟡 Em Contato</option>
+          <option value="negociando"  ${l.status === 'negociando'  ? 'selected' : ''}>🟢 Negociando</option>
+          <option value="fechado"     ${l.status === 'fechado'     ? 'selected' : ''}>⚫ Fechado</option>
         </select>
       </td>
       <td>
         <div class="table-actions-cell">
           <a href="mailto:${l.email}" class="btn btn-outline btn-sm" title="Enviar e-mail">✉️</a>
           ${l.telefone ? `<a href="https://wa.me/55${l.telefone.replace(/\D/g, '')}" target="_blank" class="btn btn-success btn-sm" title="WhatsApp">💬</a>` : ''}
-          <button class="btn btn-danger btn-sm" onclick="pedirExclusao('${l.id}')">🗑</button>
+          <button class="btn btn-danger btn-sm" onclick="pedirExclusao(${l.id})">🗑</button>
         </div>
       </td>
     </tr>`;
     }).join('');
 }
 
-function atualizarStatus(id, novoStatus, selectEl) {
-    DB.leads.update(id, { status: novoStatus });
-    // Update select class
-    selectEl.className = `status-select status-${novoStatus}`;
-    const labels = { novo: 'Novo', 'em-contato': 'Em Contato', negociando: 'Negociando', fechado: 'Fechado' };
-    showToast(`Status atualizado: ${labels[novoStatus]}`, 'success');
-    // Refresh counts
-    allLeads = DB.leads.getAll();
+async function atualizarStatus(id, novoStatus, selectEl) {
+    try {
+        await DB.leads.update(id, { status: novoStatus });
+        selectEl.className = `status-select status-${novoStatus}`;
+        const labels = { novo: 'Novo', 'em-contato': 'Em Contato', negociando: 'Negociando', fechado: 'Fechado' };
+        showToast(`Status atualizado: ${labels[novoStatus]}`, 'success');
+        allLeads = await DB.leads.getAll();
+    } catch (e) {
+        showToast('Erro ao atualizar status: ' + e.message, 'error');
+    }
 }
 
 function pedirExclusao(id) {
@@ -116,11 +121,15 @@ function fecharConfirm() {
     document.getElementById('modalConfirm').classList.remove('active');
 }
 
-function confirmarExclusao() {
+async function confirmarExclusao() {
     if (deleteId) {
-        DB.leads.remove(deleteId);
-        showToast('Lead excluído.', 'info');
-        carregarTabela();
+        try {
+            await DB.leads.remove(deleteId);
+            showToast('Lead excluído.', 'info');
+            await carregarTabela();
+        } catch (e) {
+            showToast('Erro ao excluir: ' + e.message, 'error');
+        }
     }
     fecharConfirm();
 }

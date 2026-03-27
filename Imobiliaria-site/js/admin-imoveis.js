@@ -2,30 +2,55 @@
 let currentId = null;
 let deleteId = null;
 let allImoveis = [];
-let statusFilter = '';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!DB.auth.guard()) return;
 
     document.getElementById('sidebarToggle')?.addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
     });
 
-    // Populate corretor select
-    const corretorSel = document.getElementById('mCorretor');
-    DB.corretores.getAll().forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.nome;
-        corretorSel.appendChild(opt);
+    // Preview de fotos selecionadas
+    document.getElementById('mFotosFile')?.addEventListener('change', (e) => {
+        const preview = document.getElementById('fotosPreview');
+        preview.innerHTML = '';
+        Array.from(e.target.files || []).forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const div = document.createElement('div');
+                div.style.position = 'relative';
+                div.innerHTML = `
+                    <img src="${evt.target.result}" alt="Preview ${idx + 1}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" />
+                    <button type="button" onclick="removerFotoNova(${idx})" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">✕</button>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
     });
 
-    carregarTabela();
+    // Populate corretor select
+    try {
+        const corretores = await DB.corretores.getAll();
+        const corretorSel = document.getElementById('mCorretor');
+        corretores.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.nome;
+            corretorSel.appendChild(opt);
+        });
+    } catch {}
+
+    await carregarTabela();
 });
 
-function carregarTabela() {
-    allImoveis = DB.imoveis.getAll();
-    filtrarTabela();
+async function carregarTabela() {
+    try {
+        allImoveis = await DB.imoveis.getAll();
+        filtrarTabela();
+    } catch {
+        showToast('Erro ao carregar imóveis.', 'error');
+    }
 }
 
 function filtrarTabela() {
@@ -64,7 +89,7 @@ function renderTabela(lista) {
         <td><span class="badge ${im.finalidade === 'aluguel' ? 'badge-navy' : 'badge-gold'}">${DB.fmt.finalidade(im.finalidade)}</span></td>
         <td style="font-weight:600;color:var(--color-navy);">${DB.fmt.preco(im.preco, im.finalidade)}</td>
         <td>
-          <button onclick="toggleDestaque('${im.id}', ${im.destaque})" title="${im.destaque ? 'Remover destaque' : 'Marcar destaque'}"
+          <button onclick="toggleDestaque(${im.id}, ${im.destaque})" title="${im.destaque ? 'Remover destaque' : 'Marcar destaque'}"
             style="background:none;border:none;cursor:pointer;font-size:1.2rem;" >
             ${im.destaque ? '⭐' : '☆'}
           </button>
@@ -72,8 +97,8 @@ function renderTabela(lista) {
         <td>
           <div class="table-actions-cell">
             <a href="../imovel-detalhe.html?id=${im.id}" target="_blank" class="btn btn-outline btn-sm" title="Ver no site">🔍</a>
-            <button class="btn btn-outline btn-sm" onclick="editarImovel('${im.id}')">✏️ Editar</button>
-            <button class="btn btn-danger btn-sm" onclick="pedirExclusao('${im.id}')">🗑</button>
+            <button class="btn btn-outline btn-sm" onclick="editarImovel(${im.id})">✏️ Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="pedirExclusao(${im.id})">🗑</button>
           </div>
         </td>
       </tr>`;
@@ -85,11 +110,11 @@ function abrirModalImovel(id) {
     const modal = document.getElementById('modalImovel');
     document.getElementById('modalTitle').textContent = id ? 'Editar Imóvel' : 'Novo Imóvel';
 
-    // Clear
-    ['mTitulo', 'mPreco', 'mArea', 'mQuartos', 'mBanheiros', 'mVagas', 'mEndereco', 'mBairro', 'mCep', 'mDescricao', 'mFotos'].forEach(f => {
+    ['mTitulo', 'mPreco', 'mArea', 'mQuartos', 'mBanheiros', 'mVagas', 'mEndereco', 'mBairro', 'mCep', 'mDescricao', 'mFotosFile'].forEach(f => {
         const el = document.getElementById(f);
         if (el) el.value = '';
     });
+    document.getElementById('fotosPreview').innerHTML = '';
     document.getElementById('mCidade').value = 'São Paulo';
     document.getElementById('mEstado').value = 'SP';
     document.getElementById('mTipo').value = 'apartamento';
@@ -99,7 +124,7 @@ function abrirModalImovel(id) {
     document.getElementById('imovelId').value = '';
 
     if (id) {
-        const im = DB.imoveis.getById(id);
+        const im = allImoveis.find(x => x.id === id);
         if (im) {
             document.getElementById('imovelId').value = im.id;
             document.getElementById('mTitulo').value = im.titulo || '';
@@ -116,9 +141,17 @@ function abrirModalImovel(id) {
             document.getElementById('mEstado').value = im.estado || 'SP';
             document.getElementById('mCep').value = im.cep || '';
             document.getElementById('mDescricao').value = im.descricao || '';
-            document.getElementById('mFotos').value = (im.fotos || []).join('\n');
             document.getElementById('mDestaque').checked = !!im.destaque;
-            document.getElementById('mCorretor').value = im.corretor || '';
+            // Mostrar preview das fotos existentes
+            const preview = document.getElementById('fotosPreview');
+            preview.innerHTML = (im.fotos || []).map((foto, idx) => `
+                <div style="position: relative;">
+                    <img src="${foto}" alt="Foto ${idx + 1}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" />
+                    <button type="button" onclick="removerFotoExistente(${idx})" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">✕</button>
+                </div>
+            `).join('');
+            // corretor agora é objeto {id, nome, creci, foto}
+            document.getElementById('mCorretor').value = im.corretor?.id || '';
         }
     }
 
@@ -131,52 +164,74 @@ function fecharModal() {
     document.getElementById('modalImovel').classList.remove('active');
 }
 
-function salvarImovel() {
+async function salvarImovel() {
     const titulo = document.getElementById('mTitulo').value.trim();
     const preco = document.getElementById('mPreco').value.trim();
     if (!titulo) { showToast('O título é obrigatório.', 'error'); return; }
-    if (!preco) { showToast('Informe o preço.', 'error'); return; }
+    if (!preco)  { showToast('Informe o preço.', 'error'); return; }
 
-    const fotosRaw = document.getElementById('mFotos').value.trim();
-    const fotos = fotosRaw ? fotosRaw.split('\n').map(f => f.trim()).filter(Boolean) : [];
+    showToast('Salvando imóvel...', 'info');
 
-    const dados = {
-        titulo,
-        tipo: document.getElementById('mTipo').value,
-        finalidade: document.getElementById('mFinalidade').value,
-        preco: Number(preco),
-        area: Number(document.getElementById('mArea').value) || 0,
-        quartos: Number(document.getElementById('mQuartos').value) || 0,
-        banheiros: Number(document.getElementById('mBanheiros').value) || 0,
-        vagas: Number(document.getElementById('mVagas').value) || 0,
-        endereco: document.getElementById('mEndereco').value.trim(),
-        bairro: document.getElementById('mBairro').value.trim(),
-        cidade: document.getElementById('mCidade').value.trim(),
-        estado: document.getElementById('mEstado').value.trim().toUpperCase(),
-        cep: document.getElementById('mCep').value.trim(),
-        descricao: document.getElementById('mDescricao').value.trim(),
-        destaque: document.getElementById('mDestaque').checked,
-        corretor: document.getElementById('mCorretor').value,
-        fotos,
-    };
+    try {
+        // Upload das fotos selecionadas
+        const fotosFiles = document.getElementById('mFotosFile').files || [];
+        const fotos = [];
 
-    const id = document.getElementById('imovelId').value;
-    if (id) {
-        DB.imoveis.update(id, dados);
-        showToast('Imóvel atualizado com sucesso! ✓', 'success');
-    } else {
-        DB.imoveis.create(dados);
-        showToast('Imóvel cadastrado com sucesso! ✓', 'success');
+        for (let file of fotosFiles) {
+            try {
+                const url = await DB.upload.enviarFoto(file);
+                fotos.push(url);
+            } catch (e) {
+                showToast(`Erro ao enviar ${file.name}: ${e.message}`, 'error');
+                return;
+            }
+        }
+
+        const corretorIdVal = document.getElementById('mCorretor').value;
+
+        const dados = {
+            titulo,
+            tipo:       document.getElementById('mTipo').value,
+            finalidade: document.getElementById('mFinalidade').value,
+            preco:      Number(preco),
+            area:       Number(document.getElementById('mArea').value) || 0,
+            quartos:    Number(document.getElementById('mQuartos').value) || 0,
+            banheiros:  Number(document.getElementById('mBanheiros').value) || 0,
+            vagas:      Number(document.getElementById('mVagas').value) || 0,
+            endereco:   document.getElementById('mEndereco').value.trim(),
+            bairro:     document.getElementById('mBairro').value.trim(),
+            cidade:     document.getElementById('mCidade').value.trim(),
+            estado:     document.getElementById('mEstado').value.trim().toUpperCase(),
+            cep:        document.getElementById('mCep').value.trim(),
+            descricao:  document.getElementById('mDescricao').value.trim(),
+            destaque:   document.getElementById('mDestaque').checked,
+            fotos,
+            corretorId: corretorIdVal ? Number(corretorIdVal) : null,
+        };
+
+        const id = document.getElementById('imovelId').value;
+        if (id) {
+            await DB.imoveis.update(id, dados);
+            showToast('Imóvel atualizado com sucesso! ✓', 'success');
+        } else {
+            await DB.imoveis.create(dados);
+            showToast('Imóvel cadastrado com sucesso! ✓', 'success');
+        }
+        fecharModal();
+        await carregarTabela();
+    } catch (e) {
+        showToast('Erro ao salvar: ' + e.message, 'error');
     }
-
-    fecharModal();
-    carregarTabela();
 }
 
-function toggleDestaque(id, atual) {
-    DB.imoveis.update(id, { destaque: !atual });
-    carregarTabela();
-    showToast(!atual ? 'Marcado como destaque ⭐' : 'Destaque removido', 'info');
+async function toggleDestaque(id, atual) {
+    try {
+        await DB.imoveis.update(id, { destaque: !atual });
+        await carregarTabela();
+        showToast(!atual ? 'Marcado como destaque ⭐' : 'Destaque removido', 'info');
+    } catch (e) {
+        showToast('Erro: ' + e.message, 'error');
+    }
 }
 
 function pedirExclusao(id) {
@@ -189,13 +244,44 @@ function fecharConfirm() {
     document.getElementById('modalConfirm').classList.remove('active');
 }
 
-function confirmarExclusao() {
+async function confirmarExclusao() {
     if (deleteId) {
-        DB.imoveis.remove(deleteId);
-        showToast('Imóvel excluído.', 'info');
-        carregarTabela();
+        try {
+            await DB.imoveis.remove(deleteId);
+            showToast('Imóvel excluído.', 'info');
+            await carregarTabela();
+        } catch (e) {
+            showToast('Erro ao excluir: ' + e.message, 'error');
+        }
     }
     fecharConfirm();
+}
+
+function removerFotoNova(idx) {
+    const input = document.getElementById('mFotosFile');
+    const dataTransfer = new DataTransfer();
+    Array.from(input.files).forEach((file, i) => {
+        if (i !== idx) dataTransfer.items.add(file);
+    });
+    input.files = dataTransfer.files;
+    input.dispatchEvent(new Event('change'));
+}
+
+function removerFotoExistente(idx) {
+    const imovelId = document.getElementById('imovelId').value;
+    if (!imovelId) return;
+    const im = allImoveis.find(x => x.id === Number(imovelId));
+    if (im && im.fotos) {
+        const novasFotos = im.fotos.filter((_, i) => i !== idx);
+        im.fotos = novasFotos;
+        const preview = document.getElementById('fotosPreview');
+        preview.innerHTML = novasFotos.map((foto, i) => `
+            <div style="position: relative;">
+                <img src="${foto}" alt="Foto ${i + 1}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" />
+                <button type="button" onclick="removerFotoExistente(${i})" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">✕</button>
+            </div>
+        `).join('');
+    }
 }
 
 function logout() { DB.auth.logout(); window.location.href = 'index.html'; }
@@ -210,7 +296,6 @@ function showToast(msg, type = 'success') {
     setTimeout(() => t.remove(), 3200);
 }
 
-// Close modals on overlay click
 ['modalImovel', 'modalConfirm'].forEach(id => {
     document.getElementById(id)?.addEventListener('click', e => {
         if (e.target.id === id) {
