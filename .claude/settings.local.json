@@ -26,7 +26,8 @@
       "Bash(./gradlew clean:*)",
       "Bash(python3 -c \":*)",
       "Bash(echo \"✅ Para aplicar as mudanças, execute no seu terminal::*)",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)"
     ]
   }
 }
